@@ -1,0 +1,2 @@
+_extends: .github
+tag-template: pipeline-filebeat-logs-$NEXT_MINOR_VERSION
