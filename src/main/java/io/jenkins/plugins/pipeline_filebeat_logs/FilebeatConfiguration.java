@@ -1,3 +1,21 @@
+/**
+ * Licensed to Jenkins CI under one or more contributor license
+ * agreements.  See the NOTICE file distributed with this work
+ * for additional information regarding copyright ownership.
+ * Jenkins CI licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.  You may obtain a copy of the
+ * License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+*/
+
+
 package io.jenkins.plugins.pipeline_filebeat_logs;
 
 import com.cloudbees.plugins.credentials.Credentials;
@@ -9,6 +27,7 @@ import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
+import hudson.ExtensionList;
 import hudson.Util;
 import hudson.model.Item;
 import hudson.security.ACL;
@@ -32,6 +51,7 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -133,6 +153,11 @@ public class FilebeatConfiguration extends GlobalConfiguration {
     this.indexPattern = indexPattern;
   }
 
+  @Nonnull
+  public static FilebeatConfiguration get(){
+    return ExtensionList.lookupSingleton(FilebeatConfiguration.class);
+  }
+
   @RequirePOST
   public FormValidation doCheckKibanaUrl(@QueryParameter("kibanaUrl") String url) {
     if (StringUtils.isEmpty(url)) {
@@ -202,8 +227,7 @@ public class FilebeatConfiguration extends GlobalConfiguration {
   }
 
   @RequirePOST
-  public FormValidation doCheckIndexPattern(Item context,
-                                             @QueryParameter String indexPattern) {
+  public FormValidation doCheckIndexPattern(@QueryParameter String indexPattern) {
     if (StringUtils.isEmpty(indexPattern)) {
       return FormValidation.warning("The Filebeat index pattern is required.");
     }
