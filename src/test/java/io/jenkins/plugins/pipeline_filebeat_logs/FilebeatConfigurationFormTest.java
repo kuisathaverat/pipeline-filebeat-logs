@@ -22,6 +22,9 @@ import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 
+/**
+ * tests related to form validations that not need a Jenkins instance.
+ */
 public class FilebeatConfigurationFormTest {
 
   @Test

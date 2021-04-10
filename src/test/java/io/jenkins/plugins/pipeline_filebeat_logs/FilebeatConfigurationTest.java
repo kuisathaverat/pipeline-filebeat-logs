@@ -29,6 +29,9 @@ import org.jvnet.hudson.test.JenkinsRule;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 
+/**
+ * tests related to form validations that needs a Jenkins instance.
+ */
 public class FilebeatConfigurationTest {
 
   @Rule
