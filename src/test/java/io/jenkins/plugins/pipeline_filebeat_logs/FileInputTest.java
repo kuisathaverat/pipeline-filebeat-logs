@@ -1,16 +1,13 @@
 package io.jenkins.plugins.pipeline_filebeat_logs;
 
-import com.google.common.io.Files;
 import io.jenkins.plugins.pipeline_filebeat_logs.input.FileInput;
 import io.jenkins.plugins.pipeline_filebeat_logs.input.TCPInput;
 import io.jenkins.plugins.pipeline_filebeat_logs.input.UDPInput;
-import io.jenkins.plugins.pipeline_filebeat_logs.input.UnixInput;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;

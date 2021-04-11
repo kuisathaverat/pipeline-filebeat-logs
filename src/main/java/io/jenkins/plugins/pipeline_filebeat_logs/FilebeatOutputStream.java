@@ -27,7 +27,10 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,42 +41,48 @@ public class FilebeatOutputStream extends LineTransformationOutputStream {
   private static final Logger LOGGER = Logger.getLogger(FilebeatOutputStream.class.getName());
 
   /**
-   * for example {@code jenkinsci/git-plugin/master}
+   * for example {@code https://jenkins.example.org/jenkins/job/jenkinsci/job/git-plugin/job/master}
    */
   @Nonnull
-  protected final
-  String logStreamNameBase;
+  private final String logStreamNameBase;
   /**
    * for example {@code 123}
    */
   @Nonnull
-  protected final
-  String buildId;
+  private final String buildId;
   /**
    * for example {@code 7}
    */
   @CheckForNull
-  protected final
-  String nodeId;
+  private final String nodeId;
+  /**
+   * for example {@code jenkinsci/git-plugin/master}
+   */
+  @Nonnull
+  private final String jobName;
 
   @CheckForNull
   private Input filebeatInput;
 
-  public FilebeatOutputStream(@Nonnull String logStreamNameBase, @Nonnull String buildId, @CheckForNull String nodeId) throws URISyntaxException {
+  public FilebeatOutputStream(@Nonnull String logStreamNameBase, @Nonnull String buildId, @Nonnull String jobName, @CheckForNull String nodeId) throws URISyntaxException {
     this.logStreamNameBase = logStreamNameBase;
     this.buildId = buildId;
     this.nodeId = nodeId;
+    this.jobName = jobName;
     filebeatInput = InputFactory.createInput(new URI(FilebeatConfiguration.get().getInput()));
   }
 
   @Override
   protected void eol(byte[] b, int len) throws IOException {
+    ZonedDateTime date = ZonedDateTime.now(TimeZone.getTimeZone("UTC").toZoneId());
+    String now = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(date);
     Map<String, Object> data = ConsoleNotes.parse(b, len);
-    long now = System.currentTimeMillis();
-    data.put("build", buildId);
-    data.put("timestamp", now);
+    data.put("job.build", buildId);
+    data.put("@timestamp", now);
+    data.put("job.name", jobName);
+    data.put("job.url", logStreamNameBase);
     if (nodeId != null) {
-      data.put("node", nodeId);
+      data.put("job.node", nodeId);
     }
     try {
       if (writeOnFilebeat(JSONObject.fromObject(data).toString())) {
@@ -86,9 +95,8 @@ public class FilebeatOutputStream extends LineTransformationOutputStream {
     }
   }
 
-  private boolean writeOnFilebeat(String line) {
+  private boolean writeOnFilebeat(String line) throws IOException {
     LOGGER.log(Level.FINER, "Pipeline line: {0}", line);
-    //TODO implement it.
-    return true;
+    return filebeatInput.write(line + "\n");
   }
 }

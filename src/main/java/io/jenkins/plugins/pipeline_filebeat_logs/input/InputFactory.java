@@ -48,6 +48,6 @@ public class InputFactory {
   }
 
   public static final Input createFileInput(URI uri) {
-    return new FileInput(uri.getPath());
+    return new FileInput(uri.getSchemeSpecificPart().replaceAll("//","/"));
   }
 }

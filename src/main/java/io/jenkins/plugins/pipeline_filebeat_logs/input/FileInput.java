@@ -35,7 +35,8 @@ public class FileInput implements Input {
   }
 
   @Override
-  public void write(@NonNull String value) throws IOException {
+  public boolean write(@NonNull String value) throws IOException {
     FileUtils.writeStringToFile(Paths.get(filePath).toFile(), value, "UTF-8", true);
+    return true;
   }
 }

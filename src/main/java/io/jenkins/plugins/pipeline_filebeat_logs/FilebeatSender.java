@@ -41,27 +41,34 @@ public class FilebeatSender implements BuildListener, Closeable {
   private static final long serialVersionUID = 1;
 
   /**
-   * for example {@code jenkinsci/git-plugin/master}
+   * for example {@code https://jenkins.example.org/jenkins/job/jenkinsci/job/git-plugin/job/master}
    */
-  protected final @Nonnull
-  String logStreamNameBase;
+  @Nonnull
+  protected final String logStreamNameBase;
   /**
    * for example {@code 123}
    */
-  protected final @Nonnull
-  String buildId;
+  @Nonnull
+  protected final String buildId;
   /**
    * for example {@code 7}
    */
-  protected final @CheckForNull
-  String nodeId;
+  @CheckForNull
+  protected final String nodeId;
+  /**
+   * for example {@code jenkinsci/git-plugin/master}
+   */
+  @Nonnull
+  protected final String jobName;
+
   private transient @CheckForNull
   PrintStream logger;
 
-  public FilebeatSender(@Nonnull String logStreamNameBase, @Nonnull String buildId, @CheckForNull String nodeId) {
+  public FilebeatSender(@Nonnull String logStreamNameBase, @Nonnull String buildId, @Nonnull String jobName, @CheckForNull String nodeId) {
     this.logStreamNameBase = logStreamNameBase;
     this.buildId = buildId;
     this.nodeId = nodeId;
+    this.jobName = jobName;
   }
 
   @NonNull
@@ -69,7 +76,7 @@ public class FilebeatSender implements BuildListener, Closeable {
   public PrintStream getLogger() {
     if (logger == null) {
       try {
-        logger = new PrintStream(new FilebeatOutputStream(logStreamNameBase, buildId, nodeId), false, "UTF-8");
+        logger = new PrintStream(new FilebeatOutputStream(logStreamNameBase, buildId, jobName, nodeId), false, "UTF-8");
       } catch (UnsupportedEncodingException|URISyntaxException x) {
         throw new AssertionError(x);
       }

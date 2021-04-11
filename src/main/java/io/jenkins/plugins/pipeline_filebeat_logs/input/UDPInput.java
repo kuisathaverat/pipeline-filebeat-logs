@@ -17,13 +17,11 @@
 package io.jenkins.plugins.pipeline_filebeat_logs.input;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.Socket;
 
 public class UDPInput implements Input {
   private final int port;
@@ -36,11 +34,12 @@ public class UDPInput implements Input {
   }
 
   @Override
-  public void write(@NonNull String value) throws IOException {
+  public boolean write(@NonNull String value) throws IOException {
     try (DatagramSocket socket = new DatagramSocket()) {
       byte[] bytes = value.getBytes("UTF-8");
       DatagramPacket packet = new DatagramPacket(bytes, bytes.length, InetAddress.getByName(host), port);
       socket.send(packet);
     }
+    return true;
   }
 }

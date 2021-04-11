@@ -53,6 +53,7 @@ public class PipelineBridge implements LogStorageFactory {
   public LogStorage forBuild(@NonNull FlowExecutionOwner owner) {
     final String logStreamNameBase;
     final String buildId;
+    final String jobName;
     if(StringUtils.isBlank(FilebeatConfiguration.get().getInput())){
       LOGGER.warning("There is no Filebeat input configured (Configure System/Filebeat settings).");
       return null;
@@ -62,7 +63,8 @@ public class PipelineBridge implements LogStorageFactory {
       if (exec instanceof Run) {
         Run<?, ?> b = (Run<?, ?>) exec;
         // TODO add build and job info to the stream
-        logStreamNameBase = b.getParent().getFullName();
+        logStreamNameBase = b.getParent().getAbsoluteUrl();
+        jobName = b.getParent().getFullDisplayName();
         buildId = b.getId();
       } else {
         return null;
@@ -70,7 +72,7 @@ public class PipelineBridge implements LogStorageFactory {
     } catch (IOException x) {
       return new BrokenLogStorage(x);
     }
-    return forIDs(logStreamNameBase, buildId);
+    return forIDs(logStreamNameBase, buildId, jobName);
   }
 
   void close(String logStreamNameBase, String buildId) {
@@ -81,7 +83,7 @@ public class PipelineBridge implements LogStorageFactory {
     return logStreamNameBase + "#" + buildId;
   }
 
-  LogStorage forIDs(String logStreamNameBase, String buildId) {
-    return impls.computeIfAbsent(getKey(logStreamNameBase, buildId), k -> new LogStorageImpl(logStreamNameBase, buildId));
+  LogStorage forIDs(String logStreamNameBase, String buildId, String jobName) {
+    return impls.computeIfAbsent(getKey(logStreamNameBase, buildId), k -> new LogStorageImpl(logStreamNameBase, buildId, jobName));
   }
 }

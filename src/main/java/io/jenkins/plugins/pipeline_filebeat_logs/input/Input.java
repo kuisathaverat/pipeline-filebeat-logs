@@ -5,5 +5,5 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
 
 public interface Input {
-  void write(@NonNull String value) throws IOException;
+  boolean write(@NonNull String value) throws IOException;
 }

@@ -33,9 +33,10 @@ public class TCPInput implements Input {
   }
 
   @Override
-  public void write(@NonNull String value) throws IOException {
+  public boolean write(@NonNull String value) throws IOException {
     try (Socket socket = new Socket(host, port)) {
       IOUtils.write(value, socket.getOutputStream(), "UTF-8");
     }
+    return true;
   }
 }

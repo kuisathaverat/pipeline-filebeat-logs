@@ -34,7 +34,9 @@ import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jenkins.model.GlobalConfiguration;
+import jenkins.model.GlobalConfigurationCategory;
 import jenkins.model.Jenkins;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -47,8 +49,10 @@ import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import javax.annotation.Nonnull;
@@ -80,6 +84,25 @@ public class FilebeatConfiguration extends GlobalConfiguration {
   private String credentialsId;
   @CheckForNull
   private String indexPattern = "filebeat-*";
+
+  @DataBoundConstructor
+  public FilebeatConfiguration() {
+    load();
+  }
+
+  @Override
+  public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+    req.bindJSON(this, json);
+    save();
+    return true;
+  }
+
+  @Override
+  @Nonnull
+  public
+  GlobalConfigurationCategory getCategory() {
+    return GlobalConfigurationCategory.get(GlobalConfigurationCategory.Unclassified.class);
+  }
 
   @NonNull
   @Override
@@ -267,7 +290,7 @@ public class FilebeatConfiguration extends GlobalConfiguration {
     } catch (IOException e) {
       return FormValidation.error("Unable to connect.");
     }
-    return FormValidation.error("Unknown error.");
+    return FormValidation.error("Index pattern not found.");
   }
 
 }

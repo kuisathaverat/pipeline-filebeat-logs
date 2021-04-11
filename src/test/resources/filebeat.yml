@@ -4,17 +4,37 @@ output.console:
 filebeat.inputs:
   - type: filestream
     enabled: true
+    json.keys_under_root: true
     paths:
       - "/tmp/filebeat_input"
+    processors:
+      - decode_json_fields:
+          fields:
+            - message
+          target: ""
+          overwrite_keys: true
+          add_error_key: true
   - type: tcp
     enabled: true
+    json.keys_under_root: true
     max_message_size: 10MiB
     host: "0.0.0.0:9000"
+    processors:
+      - decode_json_fields:
+          fields:
+            - message
+          target: ""
+          overwrite_keys: true
+          add_error_key: true
   - type: udp
     enabled: true
+    json.keys_under_root: true
     max_message_size: 10KiB
     host: "0.0.0.0:8000"
-  - type: unix
-    enabled: true
-    max_message_size: 10MiB
-    path: "/tmp/filebeat.sock"
+    processors:
+      - decode_json_fields:
+          fields:
+            - message
+          target: ""
+          overwrite_keys: true
+          add_error_key: true
