@@ -1,0 +1,20 @@
+---
+output.console:
+  pretty: true
+filebeat.inputs:
+  - type: filestream
+    enabled: true
+    paths:
+      - "/tmp/filebeat_input"
+  - type: tcp
+    enabled: true
+    max_message_size: 10MiB
+    host: "0.0.0.0:9000"
+  - type: udp
+    enabled: true
+    max_message_size: 10KiB
+    host: "0.0.0.0:8000"
+  - type: unix
+    enabled: true
+    max_message_size: 10MiB
+    path: "/tmp/filebeat.sock"

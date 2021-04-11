@@ -68,7 +68,7 @@ import java.util.Optional;
 @Extension
 public class FilebeatConfiguration extends GlobalConfiguration {
   private static final String ERROR_MALFORMED_URL = "The url is malformed.";
-  private static final List<String> validSchemas = Arrays.asList("unix", "tcp", "udp", "file");
+  private static final List<String> validSchemas = Arrays.asList("tcp", "udp", "file");
 
   @CheckForNull
   private String kibanaUrl;
@@ -256,16 +256,18 @@ public class FilebeatConfiguration extends GlobalConfiguration {
 
       try (RestHighLevelClient client = new RestHighLevelClient(builder)) {
         GetIndexRequest request = new GetIndexRequest(indexPattern);
-        client.indices().exists(request, RequestOptions.DEFAULT);
+        if(client.indices().exists(request, RequestOptions.DEFAULT)){
+          return FormValidation.ok("success");
+        }
       }
     } catch(NoSuchElementException e){
-      return FormValidation.error("Invalid credentials");
+      return FormValidation.error("Invalid credentials.");
     } catch(IllegalArgumentException e){
-      return FormValidation.error("Invalid Elasticsearch host");
+      return FormValidation.error("Invalid Elasticsearch host.");
     } catch (IOException e) {
       return FormValidation.error("Unable to connect.");
     }
-    return FormValidation.ok("success");
+    return FormValidation.error("Unknown error.");
   }
 
 }
