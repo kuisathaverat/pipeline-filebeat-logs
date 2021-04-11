@@ -37,7 +37,7 @@ retrieve the logs (https://es.example.com:9200).
 * Elasticsearch credentials: Credentials to access to Elasticsearch, the user
 has to have access to the Filebeat indices.
 
-# Validate the Elasticsearch configuration
+# Validate the Elasticsearch configuration
 
 The configuration  has a button to validate the Elasticsearch configuration,
 This button will try to connect to Elasticsearch
