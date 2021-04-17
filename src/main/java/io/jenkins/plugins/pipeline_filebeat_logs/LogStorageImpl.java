@@ -6,7 +6,7 @@
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.  You may obtain a copy of the
  * License at
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -24,6 +24,7 @@ import hudson.console.AnnotatedLargeText;
 import hudson.model.BuildListener;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import io.jenkins.plugins.pipeline_filebeat_logs.log.BuildInfo;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.log.BrokenLogStorage;
@@ -42,33 +43,30 @@ import java.util.logging.Logger;
  */
 public class LogStorageImpl implements LogStorage {
   private static final Logger LOGGER = Logger.getLogger(LogStorageImpl.class.getName());
-  private final String logStreamNameBase;
-  private final String buildId;
-  private final String jobName;
+  @NonNull
+  private final BuildInfo buildInfo;
 
-  public LogStorageImpl(String logStreamName, String buildId, String jobName) {
-    this.logStreamNameBase = logStreamName;
-    this.buildId = buildId;
-    this.jobName = jobName;
+  public LogStorageImpl(@NonNull BuildInfo buildInfo) throws IOException {
+    this.buildInfo = buildInfo;
   }
 
   @NonNull
   @Override
   public BuildListener overallListener() throws IOException, InterruptedException {
-    return new FilebeatSender(logStreamNameBase, buildId, jobName, null);
+    return new FilebeatSender(buildInfo, null);
   }
 
   @NonNull
   @Override
   public TaskListener nodeListener(@NonNull FlowNode flowNode) throws IOException, InterruptedException {
-    return new FilebeatSender(logStreamNameBase, buildId, jobName, flowNode.getId());
+    return new FilebeatSender(buildInfo, flowNode.getId());
   }
 
   @NonNull
   @Override
   public AnnotatedLargeText<FlowExecutionOwner.Executable> overallLog(@NonNull FlowExecutionOwner.Executable build, boolean complete) {
     try {
-      return new FilebeatRetriever(logStreamNameBase, buildId).overallLog(build, complete);
+      return new FilebeatRetriever(buildInfo).overallLog(build, complete);
     } catch (Exception x) {
       return new BrokenLogStorage(x).overallLog(build, complete);
     }
@@ -78,7 +76,7 @@ public class LogStorageImpl implements LogStorage {
   @Override
   public AnnotatedLargeText<FlowNode> stepLog(@NonNull FlowNode flowNode, boolean complete) {
     try {
-      return new FilebeatRetriever(logStreamNameBase, buildId).stepLog(flowNode, complete);
+      return new FilebeatRetriever(buildInfo).stepLog(flowNode, complete);
     } catch (Exception x) {
       return new BrokenLogStorage(x).stepLog(flowNode, complete);
     }

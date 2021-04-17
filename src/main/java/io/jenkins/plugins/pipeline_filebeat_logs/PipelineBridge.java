@@ -6,7 +6,7 @@
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.  You may obtain a copy of the
  * License at
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -23,6 +23,7 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.model.Queue;
 import hudson.model.Run;
+import io.jenkins.plugins.pipeline_filebeat_logs.log.BuildInfo;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.log.BrokenLogStorage;
@@ -51,39 +52,33 @@ public class PipelineBridge implements LogStorageFactory {
   @Nullable
   @Override
   public LogStorage forBuild(@NonNull FlowExecutionOwner owner) {
-    final String logStreamNameBase;
-    final String buildId;
-    final String jobName;
-    if(StringUtils.isBlank(FilebeatConfiguration.get().getInput())){
+    if (StringUtils.isBlank(FilebeatConfiguration.get().getInput())) {
       LOGGER.warning("There is no Filebeat input configured (Configure System/Filebeat settings).");
       return null;
     }
     try {
       Queue.Executable exec = owner.getExecutable();
       if (exec instanceof Run) {
-        Run<?, ?> b = (Run<?, ?>) exec;
-        // TODO add build and job info to the stream
-        logStreamNameBase = b.getParent().getAbsoluteUrl();
-        jobName = b.getParent().getFullDisplayName();
-        buildId = b.getId();
+        return getLogStorageForId(new BuildInfo((Run<?, ?>) exec));
       } else {
         return null;
       }
     } catch (IOException x) {
       return new BrokenLogStorage(x);
     }
-    return forIDs(logStreamNameBase, buildId, jobName);
   }
 
-  void close(String logStreamNameBase, String buildId) {
-    impls.remove(getKey(logStreamNameBase, buildId));
+  void close(String logsKey) {
+    impls.remove(logsKey);
   }
 
-  private String getKey(String logStreamNameBase, String buildId) {
-    return logStreamNameBase + "#" + buildId;
-  }
-
-  LogStorage forIDs(String logStreamNameBase, String buildId, String jobName) {
-    return impls.computeIfAbsent(getKey(logStreamNameBase, buildId), k -> new LogStorageImpl(logStreamNameBase, buildId, jobName));
+  LogStorage getLogStorageForId(BuildInfo buildInfo) throws IOException {
+    return impls.computeIfAbsent(buildInfo.getKey(), k -> {
+      try {
+        return new LogStorageImpl(buildInfo);
+      } catch (IOException e) {
+        throw new IllegalArgumentException(e);
+      }
+    });
   }
 }

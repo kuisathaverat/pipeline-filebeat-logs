@@ -6,7 +6,7 @@
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.  You may obtain a copy of the
  * License at
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -17,9 +17,12 @@
 
 package io.jenkins.plugins.pipeline_filebeat_logs;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.console.LineTransformationOutputStream;
 import io.jenkins.plugins.pipeline_filebeat_logs.input.Input;
 import io.jenkins.plugins.pipeline_filebeat_logs.input.InputFactory;
+import io.jenkins.plugins.pipeline_filebeat_logs.log.BuildInfo;
+import io.jenkins.plugins.pipeline_filebeat_logs.log.Retriever;
 import net.sf.json.JSONObject;
 
 import javax.annotation.CheckForNull;
@@ -27,10 +30,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,54 +39,34 @@ import java.util.logging.Logger;
  */
 public class FilebeatOutputStream extends LineTransformationOutputStream {
   private static final Logger LOGGER = Logger.getLogger(FilebeatOutputStream.class.getName());
-
-  /**
-   * for example {@code https://jenkins.example.org/jenkins/job/jenkinsci/job/git-plugin/job/master}
-   */
-  @Nonnull
-  private final String logStreamNameBase;
-  /**
-   * for example {@code 123}
-   */
-  @Nonnull
-  private final String buildId;
-  /**
-   * for example {@code 7}
-   */
-  @CheckForNull
+  @NonNull
+  private final BuildInfo buildInfo;
+  @NonNull
   private final String nodeId;
-  /**
-   * for example {@code jenkinsci/git-plugin/master}
-   */
-  @Nonnull
-  private final String jobName;
-
   @CheckForNull
   private Input filebeatInput;
 
-  public FilebeatOutputStream(@Nonnull String logStreamNameBase, @Nonnull String buildId, @Nonnull String jobName, @CheckForNull String nodeId) throws URISyntaxException {
-    this.logStreamNameBase = logStreamNameBase;
-    this.buildId = buildId;
+  public FilebeatOutputStream(@Nonnull BuildInfo buildInfo, @CheckForNull String nodeId) throws URISyntaxException {
+    this.buildInfo = buildInfo;
     this.nodeId = nodeId;
-    this.jobName = jobName;
     filebeatInput = InputFactory.createInput(new URI(FilebeatConfiguration.get().getInput()));
   }
 
   @Override
   protected void eol(byte[] b, int len) throws IOException {
-    ZonedDateTime date = ZonedDateTime.now(TimeZone.getTimeZone("UTC").toZoneId());
-    String now = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(date);
+    String now = Retriever.now();
     Map<String, Object> data = ConsoleNotes.parse(b, len);
-    data.put("job.build", buildId);
-    data.put("@timestamp", now);
-    data.put("job.name", jobName);
-    data.put("job.url", logStreamNameBase);
+    data.put(Retriever.JOB_BUILD, buildInfo.getBuildId());
+    data.put(Retriever.TIMESTAMP, now);
+    data.put(Retriever.JOB_NAME, buildInfo.getJobName());
+    data.put(Retriever.JOB_URL, buildInfo.getJobUrl());
+    data.put(Retriever.JOB_ID, buildInfo.getKey());
     if (nodeId != null) {
-      data.put("job.node", nodeId);
+      data.put(Retriever.JOB_NODE, nodeId);
     }
     try {
       if (writeOnFilebeat(JSONObject.fromObject(data).toString())) {
-        LOGGER.log(Level.FINER, "scheduled event @{0} from {1}/{2}#{3}", new Object[]{now, logStreamNameBase, buildId, nodeId});
+        LOGGER.log(Level.FINER, "scheduled event @{0} from {1}/{2}#{3}", new Object[]{now, buildInfo.toString(), nodeId});
       } else {
         LOGGER.warning("Message buffer full, giving up");
       }

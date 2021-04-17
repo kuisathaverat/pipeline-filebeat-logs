@@ -6,7 +6,7 @@
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.  You may obtain a copy of the
  * License at
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,10 +19,10 @@ package io.jenkins.plugins.pipeline_filebeat_logs;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.BuildListener;
+import io.jenkins.plugins.pipeline_filebeat_logs.log.BuildInfo;
 import jenkins.util.JenkinsJVM;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -41,34 +41,20 @@ public class FilebeatSender implements BuildListener, Closeable {
   private static final long serialVersionUID = 1;
 
   /**
-   * for example {@code https://jenkins.example.org/jenkins/job/jenkinsci/job/git-plugin/job/master}
-   */
-  @Nonnull
-  protected final String logStreamNameBase;
-  /**
-   * for example {@code 123}
-   */
-  @Nonnull
-  protected final String buildId;
-  /**
    * for example {@code 7}
    */
   @CheckForNull
-  protected final String nodeId;
-  /**
-   * for example {@code jenkinsci/git-plugin/master}
-   */
-  @Nonnull
-  protected final String jobName;
+  private final String nodeId;
+  @NonNull
+  private final BuildInfo buildInfo;
+
 
   private transient @CheckForNull
   PrintStream logger;
 
-  public FilebeatSender(@Nonnull String logStreamNameBase, @Nonnull String buildId, @Nonnull String jobName, @CheckForNull String nodeId) {
-    this.logStreamNameBase = logStreamNameBase;
-    this.buildId = buildId;
+  public FilebeatSender(@NonNull BuildInfo buildInfo, @CheckForNull String nodeId) {
+    this.buildInfo = buildInfo;
     this.nodeId = nodeId;
-    this.jobName = jobName;
   }
 
   @NonNull
@@ -76,8 +62,8 @@ public class FilebeatSender implements BuildListener, Closeable {
   public PrintStream getLogger() {
     if (logger == null) {
       try {
-        logger = new PrintStream(new FilebeatOutputStream(logStreamNameBase, buildId, jobName, nodeId), false, "UTF-8");
-      } catch (UnsupportedEncodingException|URISyntaxException x) {
+        logger = new PrintStream(new FilebeatOutputStream(buildInfo, nodeId), false, "UTF-8");
+      } catch (UnsupportedEncodingException | URISyntaxException x) {
         throw new AssertionError(x);
       }
     }
@@ -87,12 +73,12 @@ public class FilebeatSender implements BuildListener, Closeable {
   @Override
   public void close() throws IOException {
     if (logger != null) {
-      LOGGER.log(Level.FINE, "closing {0}/{1}#{2}", new Object[]{logStreamNameBase, buildId, nodeId});
+      LOGGER.log(Level.FINE, "closing {0}#{2}", new Object[]{buildInfo.toString(), nodeId});
       logger = null;
     }
     if (nodeId != null && JenkinsJVM.isJenkinsJVM()) {
       // Note that this does not necessarily shut down the AWSLogs client; that is shared across builds.
-      PipelineBridge.get().close(logStreamNameBase, buildId);
+      PipelineBridge.get().close(buildInfo.getKey());
     }
   }
 }
