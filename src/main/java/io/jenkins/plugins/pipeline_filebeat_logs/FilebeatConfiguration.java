@@ -6,14 +6,14 @@
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.  You may obtain a copy of the
  * License at
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
-*/
+ */
 
 
 package io.jenkins.plugins.pipeline_filebeat_logs;
@@ -33,21 +33,12 @@ import hudson.model.Item;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import io.jenkins.plugins.pipeline_filebeat_logs.log.Retriever;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.GlobalConfigurationCategory;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.GetIndexRequest;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -90,6 +81,11 @@ public class FilebeatConfiguration extends GlobalConfiguration {
     load();
   }
 
+  @Nonnull
+  public static FilebeatConfiguration get() {
+    return ExtensionList.lookupSingleton(FilebeatConfiguration.class);
+  }
+
   @Override
   public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
     req.bindJSON(this, json);
@@ -99,8 +95,7 @@ public class FilebeatConfiguration extends GlobalConfiguration {
 
   @Override
   @Nonnull
-  public
-  GlobalConfigurationCategory getCategory() {
+  public GlobalConfigurationCategory getCategory() {
     return GlobalConfigurationCategory.get(GlobalConfigurationCategory.Unclassified.class);
   }
 
@@ -135,7 +130,6 @@ public class FilebeatConfiguration extends GlobalConfiguration {
     return elasticsearchUrl;
   }
 
-
   @DataBoundSetter
   public void setElasticsearchUrl(@CheckForNull String elasticsearchUrl) throws MalformedURLException {
     this.elasticsearchUrl = Util.fixNull(elasticsearchUrl);
@@ -161,7 +155,8 @@ public class FilebeatConfiguration extends GlobalConfiguration {
     Optional<Credentials> optionalCredentials = SystemCredentialsProvider.getInstance()
       .getCredentials()
       .stream()
-      .filter(credentials -> (credentials instanceof UsernamePasswordCredentials) && ((IdCredentials) credentials).getId().equals(credentialsId))
+      .filter(credentials ->
+        (credentials instanceof UsernamePasswordCredentials) && ((IdCredentials) credentials).getId().equals(credentialsId))
       .findAny();
     return (UsernamePasswordCredentials) optionalCredentials.get();
   }
@@ -174,11 +169,6 @@ public class FilebeatConfiguration extends GlobalConfiguration {
   @DataBoundSetter
   public void setIndexPattern(@CheckForNull String indexPattern) {
     this.indexPattern = indexPattern;
-  }
-
-  @Nonnull
-  public static FilebeatConfiguration get(){
-    return ExtensionList.lookupSingleton(FilebeatConfiguration.class);
   }
 
   @RequirePOST
@@ -259,38 +249,35 @@ public class FilebeatConfiguration extends GlobalConfiguration {
 
   @RequirePOST
   public FormValidation doValidate(@QueryParameter String elasticsearchUrl,
-                          @QueryParameter String credentialsId, @QueryParameter String indexPattern) {
+                                   @QueryParameter String credentialsId,
+                                   @QueryParameter String indexPattern) {
     try {
-      final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
       UsernamePasswordCredentials jenkinsCredentials = getCredentials(credentialsId);
-      org.apache.http.auth.UsernamePasswordCredentials credentials =
-        new org.apache.http.auth.UsernamePasswordCredentials(jenkinsCredentials.getUsername(), jenkinsCredentials.getPassword().getPlainText());
-      credentialsProvider.setCredentials(AuthScope.ANY, credentials);
-
-      RestClientBuilder builder = RestClient.builder(HttpHost.create(elasticsearchUrl));
-      builder.setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
-        @Override
-        public HttpAsyncClientBuilder customizeHttpClient(
-          HttpAsyncClientBuilder httpClientBuilder) {
-          return httpClientBuilder
-            .setDefaultCredentialsProvider(credentialsProvider);
-        }
-      });
-
-      try (RestHighLevelClient client = new RestHighLevelClient(builder)) {
-        GetIndexRequest request = new GetIndexRequest(indexPattern);
-        if(client.indices().exists(request, RequestOptions.DEFAULT)){
-          return FormValidation.ok("success");
-        }
+      Retriever retriever = new Retriever(
+        elasticsearchUrl,
+        jenkinsCredentials.getUsername(), jenkinsCredentials.getPassword().getPlainText(),
+        indexPattern);
+      if (retriever.indexExists()) {
+        return FormValidation.ok("success");
       }
-    } catch(NoSuchElementException e){
+    } catch (NoSuchElementException e) {
       return FormValidation.error("Invalid credentials.");
-    } catch(IllegalArgumentException e){
-      return FormValidation.error("Invalid Elasticsearch host.");
+    } catch (IllegalArgumentException e) {
+      return FormValidation.error(e, "Invalid Argument.");
     } catch (IOException e) {
-      return FormValidation.error("Unable to connect.");
+      return FormValidation.error(e, "Unable to connect.");
     }
     return FormValidation.error("Index pattern not found.");
   }
 
+  @Override
+  public String toString() {
+    return "FilebeatConfiguration{" +
+      "kibanaUrl='" + kibanaUrl + '\'' +
+      ", elasticsearchUrl='" + elasticsearchUrl + '\'' +
+      ", input='" + input + '\'' +
+      ", credentialsId='" + credentialsId + '\'' +
+      ", indexPattern='" + indexPattern + '\'' +
+      '}';
+  }
 }
