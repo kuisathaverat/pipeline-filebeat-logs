@@ -35,9 +35,6 @@ public class FileInputTest {
     .withFileSystemBind(workdir.getAbsolutePath(), "/tmp", BindMode.READ_WRITE)
     .withStartupTimeout(Duration.ofMinutes(1));
 
-  public FileInputTest() throws IOException {
-  }
-
   @BeforeClass
   public static void requiresDocker() {
     assumeTrue(DockerClientFactory.instance().isDockerAvailable());
@@ -67,7 +64,6 @@ public class FileInputTest {
     assumeTrue(filebeatContainer.getLogs().contains("\"message\": \"foo\","));
   }
 
-
   /*
     TODO test against a Docker container
     https://github.com/testcontainers/testcontainers-java/issues/2532
@@ -84,6 +80,6 @@ public class FileInputTest {
     byte[] msgBuffer = packet.getData();
     int length = packet.getLength();
     int offset = packet.getOffset();
-    assertEquals(new String(msgBuffer, offset, length),"foo\n");
+    assertEquals(new String(msgBuffer, offset, length), "foo\n");
   }
 }
