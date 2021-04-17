@@ -6,7 +6,7 @@
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.  You may obtain a copy of the
  * License at
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -17,8 +17,15 @@
 
 package io.jenkins.plugins.pipeline_filebeat_logs;
 
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.console.AnnotatedLargeText;
+import io.jenkins.plugins.pipeline_filebeat_logs.log.BuildInfo;
+import io.jenkins.plugins.pipeline_filebeat_logs.log.Retriever;
+import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.kohsuke.stapler.framework.io.ByteBuffer;
@@ -38,8 +45,11 @@ public class FilebeatRetriever {
 
   private static final Logger LOGGER = Logger.getLogger(FilebeatRetriever.class.getName());
 
-  public FilebeatRetriever(String logStreamNameBase, String buildId) {
+  @NonNull
+  private final BuildInfo buildInfo;
 
+  public FilebeatRetriever(@NonNull BuildInfo buildInfo) {
+    this.buildInfo = buildInfo;
   }
 
   AnnotatedLargeText<FlowExecutionOwner.Executable> overallLog(FlowExecutionOwner.Executable build, boolean completed) throws IOException, InterruptedException {
@@ -61,13 +71,83 @@ public class FilebeatRetriever {
    * @param nodeId if defined, limit output to that coming from this node
    */
   private void stream(@NonNull OutputStream os, @CheckForNull String nodeId) throws IOException {
-    //TODO implement it.
-    String url = "https://kibana.example.com";
+    UsernamePasswordCredentials creds = FilebeatConfiguration.get().getCredentials();
+    Retriever retriever = new Retriever(
+      FilebeatConfiguration.get().getElasticsearchUrl(),
+      creds.getUsername(),
+      creds.getPassword().getPlainText(),
+      FilebeatConfiguration.get().getIndexPattern()
+    );
     try (Writer w = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
-      w.write("view in " + url + "\n");
-      w.write("Empty\n");
+      String kibanaUrl = FilebeatConfiguration.get().getKibanaUrl();
+      if (StringUtils.isNotBlank(kibanaUrl)) {
+        // TODO build a proper Kibana URL with a filter.
+        w.write("view in Kibana Logs: " + buildLogsURL(nodeId) + "\n");
+        w.write("view in Kibana Discover: " + buildDiscoverURL(nodeId) + "\n");
+      }
+
+      SearchResponse searchResponse = retriever.search(buildInfo.getKey(), nodeId);
+      String scrollId = searchResponse.getScrollId();
+      SearchHit[] searchHits = searchResponse.getHits().getHits();
+      int counter = searchHits.length;
+      writeOutput(w, searchHits);
+
+      while (searchHits != null && searchHits.length > 0) {
+        searchResponse = retriever.next(scrollId);
+        scrollId = searchResponse.getScrollId();
+        searchHits = searchResponse.getHits().getHits();
+        counter += searchHits.length;
+        writeOutput(w, searchHits);
+      }
+
+      retriever.clear(scrollId);
       w.flush();
     }
   }
 
+  private String buildLogsURL(@CheckForNull String nodeId) throws IOException {
+    String kibanaUrl = FilebeatConfiguration.get().getKibanaUrl();
+    return kibanaUrl + "/app/logs/stream?" +
+      "flyoutOptions=(" +
+      "flyoutId:!n," +
+      "flyoutVisibility:hidden," +
+      "surroundingLogsId:!n)" +
+      "&logPosition=(" +
+      "end:now," +
+      "start:%27" + buildInfo.getStartTime() + "%27," +
+      "streamLive:!f)" +
+      "&logFilter=(" +
+      "expression:" + buildKuery(nodeId) +
+      ",kind:kuery)";
+  }
+
+  private String buildDiscoverURL(@CheckForNull String nodeId) throws IOException {
+    String kibanaUrl = FilebeatConfiguration.get().getKibanaUrl();
+    return kibanaUrl + "/app/discover#/?" +
+      "_g=(" +
+      "time:(from:%27" + buildInfo.getStartTime() + "%27,to:now)" +
+      ")" +
+      "&_a=(" +
+      "index:%27" + FilebeatConfiguration.get().getIndexPattern() + "%27," +
+      "query:(" +
+      "language:kuery," +
+      "query:" + buildKuery(nodeId) +
+      ")" +
+      ")&f=1";
+  }
+
+  private String buildKuery(@CheckForNull String nodeId) throws IOException {
+    String nodeQuery = "";
+    if (StringUtils.isNotBlank(nodeId)) {
+      nodeQuery = "%20AND%20job.node:%27" + nodeId + "%27";
+    }
+    return "%27job.id:" + buildInfo.getKey() + nodeQuery + "%27";
+  }
+
+  private void writeOutput(Writer w, SearchHit[] searchHits) throws IOException {
+    for (SearchHit line : searchHits) {
+      JSONObject json = JSONObject.fromObject(line.getSourceAsMap());
+      ConsoleNotes.write(w, json);
+    }
+  }
 }
