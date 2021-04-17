@@ -6,7 +6,7 @@
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.  You may obtain a copy of the
  * License at
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -23,9 +23,13 @@ import java.net.URI;
  */
 public class InputFactory {
 
-  public static final Input createInput(URI uri){
+  /**
+   * @param uri URI to access to the Filebeat input.
+   * @return returns the correct implementation of the Filebeat input based on the URI.
+   */
+  public static final Input createInput(URI uri) {
     Input ret = null;
-    switch (uri.getScheme()){
+    switch (uri.getScheme()) {
       case "tcp":
         ret = createTCPInput(uri);
         break;
@@ -48,6 +52,6 @@ public class InputFactory {
   }
 
   public static final Input createFileInput(URI uri) {
-    return new FileInput(uri.getSchemeSpecificPart().replaceAll("//","/"));
+    return new FileInput(uri.getSchemeSpecificPart().replaceAll("//", "/"));
   }
 }
