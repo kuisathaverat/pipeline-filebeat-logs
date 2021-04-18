@@ -31,19 +31,16 @@ import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.DockerComposeContainer;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.junit.Assume.assumeTrue;
 
 public class PipelineTest {
 
-  @Rule
-  public JenkinsRule r = new JenkinsRule();
-
   @ClassRule
   public static DockerComposeContainer environment =
     new DockerComposeContainer(new File("src/test/resources/docker-compose.yml"));
-
+  @Rule
+  public JenkinsRule r = new JenkinsRule();
   private String credentialsId = "credID";
   private FilebeatConfiguration configuration;
   private Retriever retriever;
@@ -96,9 +93,9 @@ public class PipelineTest {
       try {
         SearchResponse searchResponse = retriever.search(buildInfo.getKey());
         counter = searchResponse.getHits().getTotalHits().value;
-      } catch(Throwable e){
+      } catch (Throwable e) {
         //NOOP
       }
-    } while(counter < 5);
+    } while (counter < 5);
   }
 }

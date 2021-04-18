@@ -98,7 +98,7 @@ public class FilebeatRetriever {
         writeOutput(w, searchHits);
       }
 
-      if(searchResponse.getHits().getTotalHits().value != 0){
+      if (searchResponse.getHits().getTotalHits().value != 0) {
         retriever.clear(scrollId);
       }
       w.flush();
