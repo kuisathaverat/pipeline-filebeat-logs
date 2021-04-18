@@ -89,18 +89,18 @@ public class FilebeatRetriever {
       SearchResponse searchResponse = retriever.search(buildInfo.getKey(), nodeId);
       String scrollId = searchResponse.getScrollId();
       SearchHit[] searchHits = searchResponse.getHits().getHits();
-      int counter = searchHits.length;
       writeOutput(w, searchHits);
 
       while (searchHits != null && searchHits.length > 0) {
         searchResponse = retriever.next(scrollId);
         scrollId = searchResponse.getScrollId();
         searchHits = searchResponse.getHits().getHits();
-        counter += searchHits.length;
         writeOutput(w, searchHits);
       }
 
-      retriever.clear(scrollId);
+      if(searchResponse.getHits().getTotalHits().value != 0){
+        retriever.clear(scrollId);
+      }
       w.flush();
     }
   }
