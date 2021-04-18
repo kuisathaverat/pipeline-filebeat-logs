@@ -29,7 +29,7 @@ public class FilebeatConfigurationFormTest {
 
   @Test
   public void testDoCheckKibanaUrl() {
-    FilebeatConfiguration config = new FilebeatConfiguration();
+    FilebeatConfiguration config = new FilebeatConfiguration(true);
     assertEquals(config.doCheckKibanaUrl("http://example.com:100").kind, FormValidation.Kind.OK);
     assertEquals(config.doCheckKibanaUrl("").kind, FormValidation.Kind.OK);
     assertEquals(config.doCheckKibanaUrl("foo").kind, FormValidation.Kind.ERROR);
@@ -37,20 +37,19 @@ public class FilebeatConfigurationFormTest {
 
   @Test
   public void testDoCheckInput() {
-    FilebeatConfiguration config = new FilebeatConfiguration();
+    FilebeatConfiguration config = new FilebeatConfiguration(true);
     assertEquals(config.doCheckInput("http://example.com:1000").kind, FormValidation.Kind.ERROR);
     assertEquals(config.doCheckInput("").kind, FormValidation.Kind.WARNING);
     assertEquals(config.doCheckInput("file://dir/dir/file").kind, FormValidation.Kind.OK);
     assertEquals(config.doCheckInput("udp:192.168.1.100:1000").kind, FormValidation.Kind.OK);
     assertEquals(config.doCheckInput("tcp:192.168.1.100:100").kind, FormValidation.Kind.OK);
-    assertEquals(config.doCheckInput("unix://dir/dir/sock").kind, FormValidation.Kind.OK);
     assertEquals(config.doCheckInput("foo").kind, FormValidation.Kind.ERROR);
     assertEquals(config.doCheckInput("foo://bar").kind, FormValidation.Kind.ERROR);
   }
 
   @Test
   public void testDoCheckElasticsearchUrl() {
-    FilebeatConfiguration config = new FilebeatConfiguration();
+    FilebeatConfiguration config = new FilebeatConfiguration(true);
     assertEquals(config.doCheckElasticsearchUrl("http://example.com:1000").kind, FormValidation.Kind.OK);
     assertEquals(config.doCheckElasticsearchUrl("").kind, FormValidation.Kind.WARNING);
     assertEquals(config.doCheckElasticsearchUrl("foo").kind, FormValidation.Kind.ERROR);
@@ -58,7 +57,7 @@ public class FilebeatConfigurationFormTest {
 
   @Test
   public void testDoCheckIndexPattern() {
-    FilebeatConfiguration config = new FilebeatConfiguration();
+    FilebeatConfiguration config = new FilebeatConfiguration(true);
     assertEquals(config.doCheckIndexPattern("foo").kind, FormValidation.Kind.OK);
     assertEquals(config.doCheckIndexPattern("").kind, FormValidation.Kind.WARNING);
   }

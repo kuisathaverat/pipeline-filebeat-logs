@@ -81,6 +81,12 @@ public class FilebeatConfiguration extends GlobalConfiguration {
     load();
   }
 
+  /**
+   * Testing only
+   */
+  public FilebeatConfiguration(boolean test) {
+  }
+
   @Nonnull
   public static FilebeatConfiguration get() {
     return ExtensionList.lookupSingleton(FilebeatConfiguration.class);

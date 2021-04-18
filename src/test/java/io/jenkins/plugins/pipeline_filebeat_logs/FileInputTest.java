@@ -1,6 +1,7 @@
 package io.jenkins.plugins.pipeline_filebeat_logs;
 
 import io.jenkins.plugins.pipeline_filebeat_logs.input.FileInput;
+import io.jenkins.plugins.pipeline_filebeat_logs.input.InputFactory;
 import io.jenkins.plugins.pipeline_filebeat_logs.input.TCPInput;
 import io.jenkins.plugins.pipeline_filebeat_logs.input.UDPInput;
 import org.apache.commons.io.FileUtils;
@@ -14,13 +15,12 @@ import org.testcontainers.containers.GenericContainer;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
@@ -81,5 +81,12 @@ public class FileInputTest {
     int length = packet.getLength();
     int offset = packet.getOffset();
     assertEquals(new String(msgBuffer, offset, length), "foo\n");
+  }
+
+  @Test
+  public void testFactory() throws URISyntaxException {
+    assertTrue(InputFactory.createInput(new URI("file://path/file")) instanceof FileInput);
+    assertTrue(InputFactory.createInput(new URI("tcp://host:port")) instanceof TCPInput);
+    assertTrue(InputFactory.createInput(new URI("udp://host:port")) instanceof UDPInput);
   }
 }
