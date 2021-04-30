@@ -12,9 +12,9 @@
     <version>${revision}${changelist}</version>
     <packaging>hpi</packaging>
     <properties>
-        <revision>0.1</revision>
+        <revision>0.1.0</revision>
         <changelist>-SNAPSHOT</changelist>
-        <jenkins.version>2.277.2</jenkins.version>
+        <jenkins.version>2.277.1</jenkins.version>
         <java.level>8</java.level>
         <useBeta>true</useBeta>
     </properties>
@@ -102,7 +102,12 @@
         <dependency>
           <groupId>org.elasticsearch.client</groupId>
           <artifactId>elasticsearch-rest-high-level-client</artifactId>
-          <version>7.12.0</version>
+          <version>7.12.1</version>
+        </dependency>
+        <dependency>
+          <groupId>org.jenkins-ci.plugins</groupId>
+          <artifactId>jackson2-api</artifactId>
+          <version>2.12.3</version>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
@@ -124,6 +129,8 @@
                 <artifactId>maven-hpi-plugin</artifactId>
                 <configuration>
                     <minimumJavaVersion>8</minimumJavaVersion>
+                    <!-- The AWS SDK plugin contains some Elasticsearch classes that conflits with this plugin -->
+                    <pluginFirstClassLoader>true</pluginFirstClassLoader>
                     <loggers>
                         <io.jenkins.plugins.pipeline_filebeat_logs>FINE</io.jenkins.plugins.pipeline_filebeat_logs>
                     </loggers>
