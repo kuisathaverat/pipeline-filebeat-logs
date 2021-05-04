@@ -42,6 +42,11 @@ import java.util.logging.Logger;
 @Extension
 public class PipelineBridge implements LogStorageFactory {
 
+  static {
+    // Make sure JENKINS-52165 is enabled, or performance will be awful for remote shell steps.
+    System.setProperty("org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING", "true");
+  }
+
   private static final Logger LOGGER = Logger.getLogger(PipelineBridge.class.getName());
   private final Map<String, LogStorageImpl> impls = new ConcurrentHashMap<>();
 

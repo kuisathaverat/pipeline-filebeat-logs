@@ -18,6 +18,7 @@
 package io.jenkins.plugins.pipeline_filebeat_logs.log;
 
 import hudson.model.Run;
+import io.jenkins.plugins.pipeline_filebeat_logs.FilebeatConfiguration;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -35,29 +36,42 @@ public class BuildInfo implements Serializable {
   private static final long serialVersionUID = 1;
 
   /**
+   * Full URL to access to the job.
    * for example {@code https://jenkins.example.org/jenkins/job/jenkinsci/job/git-plugin/job/master}
    */
   @Nonnull
   private final String jobUrl;
   /**
+   * Number of the build.
    * for example {@code 123}
    */
   @Nonnull
   private final String buildId;
   /**
+   * Job name Path.
    * for example {@code jenkinsci/git-plugin/master}
    */
   @Nonnull
   private final String jobName;
 
+  /**
+   * Start time of the build.
+   */
   @Nonnull
   private final String startTime;
+
+  /**
+   * Filebeat input to send the logs.
+   */
+  @Nonnull
+  private final String input;
 
   public BuildInfo(@Nonnull Run<?, ?> build) {
     this.jobUrl = build.getParent().getAbsoluteUrl();
     this.jobName = build.getParent().getFullDisplayName();
     this.buildId = build.getId();
     this.startTime = timeStampToString(build.getStartTimeInMillis());
+    this.input = FilebeatConfiguration.get().getInput();
   }
 
   public static final String getKey(String jobUrl, String buildId) throws IOException {
@@ -91,6 +105,11 @@ public class BuildInfo implements Serializable {
     return DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(date);
   }
 
+  @Nonnull
+  public String getInput() {
+    return input;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -98,7 +117,8 @@ public class BuildInfo implements Serializable {
     BuildInfo buildInfo = (BuildInfo) o;
     return jobUrl.equals(buildInfo.jobUrl) &&
       buildId.equals(buildInfo.buildId) &&
-      jobName.equals(buildInfo.jobName);
+      jobName.equals(buildInfo.jobName) &&
+      input.equals(buildInfo.input);
   }
 
   @Override
@@ -116,6 +136,7 @@ public class BuildInfo implements Serializable {
       "logStreamNameBase='" + jobUrl + '\'' +
       ", buildId='" + buildId + '\'' +
       ", jobName='" + jobName + '\'' +
+      ", input='" + input + '\'' +
       '}';
   }
 }

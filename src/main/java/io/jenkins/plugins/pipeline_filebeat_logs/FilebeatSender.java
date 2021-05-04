@@ -81,4 +81,6 @@ public class FilebeatSender implements BuildListener, Closeable {
       PipelineBridge.get().close(buildInfo.getKey());
     }
   }
+
+
 }

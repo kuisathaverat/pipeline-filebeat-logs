@@ -49,7 +49,7 @@ public class FilebeatOutputStream extends LineTransformationOutputStream {
   public FilebeatOutputStream(@Nonnull BuildInfo buildInfo, @CheckForNull String nodeId) throws URISyntaxException {
     this.buildInfo = buildInfo;
     this.nodeId = nodeId;
-    filebeatInput = InputFactory.createInput(new URI(FilebeatConfiguration.get().getInput()));
+    filebeatInput = InputFactory.createInput(new URI(buildInfo.getInput()));
   }
 
   @Override
