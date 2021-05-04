@@ -118,7 +118,7 @@ public class FilebeatRetriever {
       "streamLive:!f)" +
       "&logFilter=(" +
       "expression:" + buildKuery(nodeId) +
-      ",kind:kuery)";
+      ",kind:kuery)&f=1";
   }
 
   private String buildDiscoverURL(@CheckForNull String nodeId) throws IOException {
