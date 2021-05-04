@@ -21,6 +21,7 @@ import hudson.model.Run;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -29,7 +30,10 @@ import java.util.Base64;
 import java.util.Objects;
 import java.util.TimeZone;
 
-public class BuildInfo {
+public class BuildInfo implements Serializable {
+
+  private static final long serialVersionUID = 1;
+
   /**
    * for example {@code https://jenkins.example.org/jenkins/job/jenkinsci/job/git-plugin/job/master}
    */
