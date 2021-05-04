@@ -82,8 +82,8 @@ public class FilebeatRetriever {
       String kibanaUrl = FilebeatConfiguration.get().getKibanaUrl();
       if (StringUtils.isNotBlank(kibanaUrl)) {
         // TODO build a proper Kibana URL with a filter.
-        w.write("view in Kibana Logs: " + buildLogsURL(nodeId) + "\n");
-        w.write("view in Kibana Discover: " + buildDiscoverURL(nodeId) + "\n");
+        w.write("[view in <a href=\"" + buildLogsURL(nodeId) + "\">Kibana Logs</a>]\n");
+        w.write("[view in <a href=\"" + buildDiscoverURL(nodeId) + "\">Kibana Discover</a>]\n");
       }
 
       SearchResponse searchResponse = retriever.search(buildInfo.getKey(), nodeId);
