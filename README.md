@@ -4,6 +4,9 @@ Pipeline Logging using Filebeat Plugin
 This plugins replaces the default logs storage for pipelines,
 the new implementation stores the logs in Elasticsearch using Filebeat.
 
+[JEP-210: External log storage for Pipeline](https://github.com/jenkinsci/jep/blob/master/jep/210/README.adoc)
+[JEP-207: External Build Logging support in the Jenkins Core](https://github.com/jenkinsci/jep/blob/master/jep/207/README.adoc)
+
 # Requirements
 
 The plugin requires a Filebeat service up and running to connect to it.
