@@ -23,6 +23,7 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.model.Queue;
 import hudson.model.Run;
+import io.jenkins.plugins.pipeline_filebeat_logs.config.FilebeatConfiguration;
 import io.jenkins.plugins.pipeline_filebeat_logs.log.BuildInfo;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;

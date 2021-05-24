@@ -20,6 +20,7 @@ package io.jenkins.plugins.pipeline_filebeat_logs;
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.console.AnnotatedLargeText;
+import io.jenkins.plugins.pipeline_filebeat_logs.config.FilebeatConfiguration;
 import io.jenkins.plugins.pipeline_filebeat_logs.log.BuildInfo;
 import io.jenkins.plugins.pipeline_filebeat_logs.log.Retriever;
 import net.sf.json.JSONObject;

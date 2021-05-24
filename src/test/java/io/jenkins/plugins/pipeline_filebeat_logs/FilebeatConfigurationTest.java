@@ -21,6 +21,7 @@ import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import hudson.util.FormValidation;
+import io.jenkins.plugins.pipeline_filebeat_logs.config.FilebeatConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

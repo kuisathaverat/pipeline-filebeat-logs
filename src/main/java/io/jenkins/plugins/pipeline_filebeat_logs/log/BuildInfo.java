@@ -18,7 +18,7 @@
 package io.jenkins.plugins.pipeline_filebeat_logs.log;
 
 import hudson.model.Run;
-import io.jenkins.plugins.pipeline_filebeat_logs.FilebeatConfiguration;
+import io.jenkins.plugins.pipeline_filebeat_logs.config.FilebeatConfiguration;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;

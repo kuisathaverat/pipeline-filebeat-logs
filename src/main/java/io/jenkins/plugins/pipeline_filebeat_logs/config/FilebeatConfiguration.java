@@ -16,7 +16,7 @@
  */
 
 
-package io.jenkins.plugins.pipeline_filebeat_logs;
+package io.jenkins.plugins.pipeline_filebeat_logs.config;
 
 import com.cloudbees.plugins.credentials.Credentials;
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
@@ -34,7 +34,6 @@ import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import io.jenkins.plugins.pipeline_filebeat_logs.log.Retriever;
-import jenkins.model.GlobalConfiguration;
 import jenkins.model.GlobalConfigurationCategory;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
@@ -61,7 +60,7 @@ import java.util.Optional;
  */
 @Symbol("filebeatLogs")
 @Extension
-public class FilebeatConfiguration extends GlobalConfiguration {
+public class FilebeatConfiguration extends AbstractElasticStackGlobalConfiguration {
   private static final String ERROR_MALFORMED_URL = "The url is malformed.";
   private static final List<String> validSchemas = Arrays.asList("tcp", "udp", "file");
 
@@ -97,12 +96,6 @@ public class FilebeatConfiguration extends GlobalConfiguration {
     req.bindJSON(this, json);
     save();
     return true;
-  }
-
-  @Override
-  @Nonnull
-  public GlobalConfigurationCategory getCategory() {
-    return GlobalConfigurationCategory.get(GlobalConfigurationCategory.Unclassified.class);
   }
 
   @NonNull

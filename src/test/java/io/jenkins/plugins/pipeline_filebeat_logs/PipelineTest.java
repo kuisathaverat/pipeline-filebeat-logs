@@ -19,6 +19,7 @@ package io.jenkins.plugins.pipeline_filebeat_logs;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
+import io.jenkins.plugins.pipeline_filebeat_logs.config.FilebeatConfiguration;
 import io.jenkins.plugins.pipeline_filebeat_logs.log.BuildInfo;
 import io.jenkins.plugins.pipeline_filebeat_logs.log.Retriever;
 import org.elasticsearch.action.search.SearchResponse;

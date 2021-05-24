@@ -18,6 +18,7 @@
 package io.jenkins.plugins.pipeline_filebeat_logs;
 
 import hudson.util.FormValidation;
+import io.jenkins.plugins.pipeline_filebeat_logs.config.FilebeatConfiguration;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;

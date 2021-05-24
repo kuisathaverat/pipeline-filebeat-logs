@@ -24,6 +24,7 @@ import hudson.console.AnnotatedLargeText;
 import hudson.model.BuildListener;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import io.jenkins.plugins.pipeline_filebeat_logs.config.FilebeatConfiguration;
 import io.jenkins.plugins.pipeline_filebeat_logs.log.BuildInfo;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
