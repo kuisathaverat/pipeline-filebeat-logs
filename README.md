@@ -1,15 +1,15 @@
-# pipeline-filebeat-logs
-Pipeline Logging using Filebeat Plugin
+# elastic-stack-logs
+Elastic Stack logs Plugin
 
 This plugins replaces the default logs storage for pipelines,
-the new implementation stores the logs in Elasticsearch using Filebeat.
+the new implementation stores the logs in Elasticsearch using Opentelemetry or Filebeat.
 
 [JEP-210: External log storage for Pipeline](https://github.com/jenkinsci/jep/blob/master/jep/210/README.adoc)
 [JEP-207: External Build Logging support in the Jenkins Core](https://github.com/jenkinsci/jep/blob/master/jep/207/README.adoc)
 
 # Requirements
 
-The plugin requires a Filebeat service up and running to connect to it.
+The plugin requires a Filebeat or a OpenTelemetry service up and running to connect to it.
 This Filebeat service should expose an input of one of the following types:
 
 * [log](https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-input-log.html)
@@ -60,3 +60,11 @@ When for other reasing the connection fails, in this case,
 you have to check the Jenkins logs for more details.
 
 ![](docs/images/error_unable_to_connect.png)
+
+# Enable ECS logging
+
+    -Djava.util.logging.config.file=/var/lib/jenkins_home/logging.properties
+
+# Enable APM
+
+    -javaagent:classpath:/var/lib/jenkins_home/plugins/../elastic-apm-agent.jar
