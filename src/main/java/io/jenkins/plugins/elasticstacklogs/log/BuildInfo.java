@@ -18,7 +18,7 @@
 package io.jenkins.plugins.elasticstacklogs.log;
 
 import hudson.model.Run;
-import io.jenkins.plugins.elasticstacklogs.config.FilebeatConfiguration;
+import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -71,7 +71,7 @@ public class BuildInfo implements Serializable {
     this.jobName = build.getParent().getFullDisplayName();
     this.buildId = build.getId();
     this.startTime = timeStampToString(build.getStartTimeInMillis());
-    this.input = FilebeatConfiguration.get().getInput();
+    this.input = InputConfiguration.get().getInput();
   }
 
   public static final String getKey(String jobUrl, String buildId) throws IOException {

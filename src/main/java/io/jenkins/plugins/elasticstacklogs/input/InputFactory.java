@@ -39,8 +39,15 @@ public class InputFactory {
       case "file":
         ret = createFileInput(uri);
         break;
+      case "otel":
+        ret = createOpentelemetryInput(uri);
+        break;
     }
     return ret;
+  }
+
+  private static Input createOpentelemetryInput(URI uri) {
+    return new OpentelemetryLogsInput(uri.getHost(), uri.getPort());
   }
 
   public static final Input createTCPInput(URI uri) {

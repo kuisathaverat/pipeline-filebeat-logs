@@ -64,6 +64,7 @@ public class OutputStream extends LineTransformationOutputStream {
     if (nodeId != null) {
       data.put(Retriever.JOB_NODE, nodeId);
     }
+    //TODO add Otel data trace_id=%X{trace_id} span_id=%X{span_id} trace_flags=%X{trace_flags}
     try {
       if (writeOnInput(JSONObject.fromObject(data).toString())) {
         LOGGER.log(Level.FINER, "scheduled event @{0} from {1}/{2}#{3}", new Object[]{now, buildInfo.toString(), nodeId});

@@ -24,7 +24,7 @@ import hudson.console.AnnotatedLargeText;
 import hudson.model.BuildListener;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import io.jenkins.plugins.elasticstacklogs.config.FilebeatConfiguration;
+import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
 import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
@@ -107,7 +107,7 @@ public class LogStorageImpl implements LogStorage {
     return f;
   }
 
-  private FilebeatConfiguration getConfiguration() {
-    return ExtensionList.lookupSingleton(FilebeatConfiguration.class);
+  private InputConfiguration getConfiguration() {
+    return ExtensionList.lookupSingleton(InputConfiguration.class);
   }
 }
