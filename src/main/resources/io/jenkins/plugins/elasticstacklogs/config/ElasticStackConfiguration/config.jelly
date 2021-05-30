@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+    <f:section title="${%Elastic Stack settings}">
+      <f:entry title="Kibana URL" field="kibanaUrl"
+               description="URL to access Kibana.">
+        <f:textbox checkMethod="post" />
+      </f:entry>
+      <f:entry title="Elasticsearch URL" field="elasticsearchUrl"
+               description="URL to access Elasticsearch.">
+        <f:textbox checkMethod="post" />
+      </f:entry>
+      <f:entry title="Elasticsearch credentials" field="credentialsId">
+        <c:select checkMethod="post"/>
+      </f:entry>
+      <f:validateButton title="Validate configuration" progress="Validating..." method="validate/"
+                        with="elasticsearchUrl,credentialsId"/>
+    </f:section>
+</j:jelly>

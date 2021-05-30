@@ -9,28 +9,27 @@
     <relativePath/>
   </parent>
   <groupId>io.jenkins.plugins</groupId>
-  <artifactId>pipeline-filebeat-logs</artifactId>
+  <artifactId>elastic-stack-logs</artifactId>
   <version>${revision}${changelist}</version>
   <packaging>hpi</packaging>
   <properties>
-    <revision>0.2.3</revision>
+    <revision>0.3.0</revision>
     <changelist>-SNAPSHOT</changelist>
     <jenkins.version>2.277.1</jenkins.version>
-    <java.level>11</java.level>
-    <animal.sniffer.signature.version>java${java.level}</animal.sniffer.signature.version>
+    <java.level>8</java.level>
     <useBeta>true</useBeta>
-    <elasticstack.version>7.12.1</elasticstack.version>
+    <elasticstack.version>7.13.0</elasticstack.version>
     <ecs-logging-java.version>1.0.1</ecs-logging-java.version>
     <elastic-apm-agent.version>1.23.0</elastic-apm-agent.version>
   </properties>
-  <name>Pipeline Logging using Filebeat Plugin</name>
+  <name>Elastic Stack logs Plugin</name>
   <licenses>
     <license>
       <name>MIT License</name>
       <url>https://opensource.org/licenses/MIT</url>
     </license>
   </licenses>
-  <url>https://github.com/jenkinsci/pipeline-filebeat-logs-plugin</url>
+  <url>https://github.com/jenkinsci/elastic-stack-logs-plugin</url>
   <scm>
     <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
@@ -109,16 +108,20 @@
       <artifactId>elasticsearch-rest-high-level-client</artifactId>
       <version>${elasticstack.version}</version>
     </dependency>
+    <!--
     <dependency>
       <groupId>co.elastic.logging</groupId>
       <artifactId>jul-ecs-formatter</artifactId>
       <version>${ecs-logging-java.version}</version>
     </dependency>
+    -->
+    <!--
     <dependency>
       <groupId>co.elastic.apm</groupId>
       <artifactId>elastic-apm-agent</artifactId>
       <version>${elastic-apm-agent.version}</version>
     </dependency>
+    -->
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>jackson2-api</artifactId>
@@ -143,7 +146,7 @@
         <groupId>org.jenkins-ci.tools</groupId>
         <artifactId>maven-hpi-plugin</artifactId>
         <configuration>
-          <minimumJavaVersion>8</minimumJavaVersion>
+          <minimumJavaVersion>${java.level}</minimumJavaVersion>
           <!-- The AWS SDK plugin contains some Elasticsearch classes that conflits with this plugin -->
           <pluginFirstClassLoader>true</pluginFirstClassLoader>
           <loggers>
