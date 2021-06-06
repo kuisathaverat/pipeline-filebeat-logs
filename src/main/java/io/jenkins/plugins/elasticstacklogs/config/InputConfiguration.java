@@ -42,12 +42,12 @@ import hudson.util.FormValidation;
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 
 /**
- * Stores the configuration of the Pipeline Filebeat plugin.
+ * Stores the configuration of the Inputs.
  */
-@Symbol("filebeatLogs")
+@Symbol("inputLogs")
 @Extension
-public class FilebeatConfiguration extends AbstractElasticStackGlobalConfiguration {
-  private static final List<String> validSchemas = Arrays.asList("tcp", "udp", "file");
+public class InputConfiguration extends AbstractElasticStackGlobalConfiguration {
+  private static final List<String> validSchemas = Arrays.asList("tcp", "udp", "file", "otel");
 
   @CheckForNull
   private String input;
@@ -55,19 +55,19 @@ public class FilebeatConfiguration extends AbstractElasticStackGlobalConfigurati
   private String indexPattern = "filebeat-*";
 
   @DataBoundConstructor
-  public FilebeatConfiguration() {
+  public InputConfiguration() {
     load();
   }
 
   /**
    * Testing only
    */
-  public FilebeatConfiguration(boolean test) {
+  public InputConfiguration(boolean test) {
   }
 
   @Nonnull
-  public static FilebeatConfiguration get() {
-    return ExtensionList.lookupSingleton(FilebeatConfiguration.class);
+  public static InputConfiguration get() {
+    return ExtensionList.lookupSingleton(InputConfiguration.class);
   }
 
   @Override
