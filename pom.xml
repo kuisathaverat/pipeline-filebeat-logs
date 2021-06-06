@@ -67,6 +67,20 @@
         <scope>import</scope>
       </dependency>
       <dependency>
+        <groupId>io.opentelemetry</groupId>
+        <artifactId>opentelemetry-bom</artifactId>
+        <version>1.2.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-bom</artifactId>
+        <version>1.38.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
         <version>1.27</version>
@@ -91,6 +105,11 @@
         <artifactId>commons-compress</artifactId>
         <version>1.20</version>
       </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.12.3</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -110,8 +129,44 @@
     </dependency>
     <dependency>
       <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-exporter-logging</artifactId>
+      <artifactId>opentelemetry-api</artifactId>
       <version>1.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-sdk</artifactId>
+      <version>1.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-sdk-extension-logging</artifactId>
+      <version>1.2.0-alpha</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-proto</artifactId>
+      <version>1.2.0-alpha</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-netty-shaded</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+    </dependency>
+    <dependency> <!-- see maskClasses config -->
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <!--
+      java.lang.NoSuchMethodError: 'void com.google.common.base.Preconditions.checkArgument(boolean, java.lang.String, char, java.lang.Object)'
+      -->
+      <version>20.0</version>
     </dependency>
     <!--
     <dependency>

@@ -1,56 +1,50 @@
 package io.jenkins.plugins.elasticstacklogs.input;
 
-import java.io.IOException;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.metrics.GlobalMeterProvider;
-import io.opentelemetry.api.metrics.LongCounter;
-import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.Tracer;
-import io.opentelemetry.exporter.logging.LoggingSpanExporter;
-import io.opentelemetry.sdk.OpenTelemetrySdk;
-import io.opentelemetry.sdk.trace.SdkTracerProvider;
-import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
+import io.grpc.ManagedChannelBuilder;
+import io.opentelemetry.sdk.logging.data.LogRecord;
+import io.opentelemetry.sdk.logging.export.BatchLogProcessor;
 
+import java.io.IOException;
+import java.util.logging.Logger;
+
+/**
+ * This input send the log records to an OpenTelemetry service with support for logs.
+ */
 public class OpentelemetryLogsInput implements Input {
-  private static final String INSTRUMENTATION_NAME = OpentelemetryLogsInput.class.getName();
+  private static final Logger LOGGER = Logger.getLogger(OpentelemetryLogsInput.class.getName());
+  public static final int BATCH_SIZE = 10;
+  public static final int MAX_QUEUE_SIZE = 20;
+  public static final int SCHEDULE_DELAY_MILLIS = 2000;
   private final int port;
   @NonNull
   private final String host;
 
-  private final OpenTelemetry openTelemetry;
-  private final Tracer tracer;
-  private final LongCounter counter;
+  private final BatchLogProcessor processor;
+  private final TestLogExporter exporter;
 
   public OpentelemetryLogsInput(String host, int port) {
     this.port = port;
     this.host = host;
-    this.openTelemetry = OpentelemetryLogsInput.initOpenTelemetry();
-    tracer = openTelemetry.getTracer(INSTRUMENTATION_NAME);
-    counter = GlobalMeterProvider.getMeter(INSTRUMENTATION_NAME).longCounterBuilder("work_done").build();
+    exporter = new TestLogExporter(ManagedChannelBuilder.forAddress(host, port));
+    exporter.setOnCall(()->{
+      LOGGER.info("Batch Log processed");
+    });
+    processor = BatchLogProcessor.builder(exporter)
+                                 .setMaxExportBatchSize(BATCH_SIZE)
+                                 .setMaxQueueSize(MAX_QUEUE_SIZE)
+                                 .setScheduleDelayMillis(SCHEDULE_DELAY_MILLIS)
+                                 .build();
   }
 
   @Override
   public boolean write(@NonNull String value) throws IOException {
-    Span span = this.tracer.spanBuilder("log line").startSpan();
-    span.addEvent(value);
-    span.end();
-    return false;
+    LogRecord record = LogRecord.builder().setBody(value).build();
+    processor.addLogRecord(record);
+    return true;
   }
 
-  /**
-   * Initializes an OpenTelemetry SDK with a logging exporter and a SimpleSpanProcessor.
-   *
-   * @return A ready-to-use {@link OpenTelemetry} instance.
-   */
-  public static OpenTelemetry initOpenTelemetry() {
-    // Tracer provider configured to export spans with SimpleSpanProcessor using
-    // the logging exporter.
-    LoggingSpanExporter exporter = new LoggingSpanExporter();
-    SdkTracerProvider tracerProvider =
-      SdkTracerProvider.builder()
-                       .addSpanProcessor(SimpleSpanProcessor.create(exporter))
-                       .build();
-    return OpenTelemetrySdk.builder().setTracerProvider(tracerProvider).buildAndRegisterGlobal();
+  public long getCount(){
+    return exporter.getCallCount();
   }
 }
