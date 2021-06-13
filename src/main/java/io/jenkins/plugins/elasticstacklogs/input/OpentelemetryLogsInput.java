@@ -2,6 +2,7 @@ package io.jenkins.plugins.elasticstacklogs.input;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.grpc.ManagedChannelBuilder;
+import io.jenkins.plugins.elasticstacklogs.opentelemetry.TestLogExporter;
 import io.opentelemetry.sdk.logging.data.LogRecord;
 import io.opentelemetry.sdk.logging.export.BatchLogProcessor;
 
