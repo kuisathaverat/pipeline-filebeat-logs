@@ -20,7 +20,7 @@ public class LogRecordConverter {
       builder.setName(u.getName())
         .setBody(io.opentelemetry.proto.common.v1.AnyValue.newBuilder().setStringValue(u.getBody().getStringValue()))
         .setFlags(u.getFlags())
-        .setSeverityText(u.getSeverityText())
+        .setSeverityNumberValue(u.getSeverity().getSeverityNumber())
         .setSpanId(ByteString.copyFrom(u.getSpanId().getBytes()))
         .setTimeUnixNano(u.getTimeUnixNano())
         .setTraceId(ByteString.copyFrom(u.getTraceId().getBytes()));
@@ -30,7 +30,7 @@ public class LogRecordConverter {
             .setValue(io.opentelemetry.proto.common.v1.AnyValue.newBuilder().setStringValue(String.valueOf(k)))
             .build()
       ));
-      return null;
+      return builder.build();
     }
   };
 

@@ -27,7 +27,7 @@ public class OpentelemetryLogsInput implements Input {
   public OpentelemetryLogsInput(String host, int port) {
     this.port = port;
     this.host = host;
-    exporter = new TestLogExporter(ManagedChannelBuilder.forAddress(host, port));
+    exporter = new TestLogExporter(ManagedChannelBuilder.forAddress(host, port).usePlaintext());
     exporter.setOnCall(()->{
       LOGGER.info("Batch Log processed");
     });
@@ -40,7 +40,7 @@ public class OpentelemetryLogsInput implements Input {
 
   @Override
   public boolean write(@NonNull String value) throws IOException {
-    LogRecord record = LogRecord.builder().setBody(value).build();
+    LogRecord record = LogRecord.builder().setName(this.getClass().getName()).setBody(value).build();
     processor.addLogRecord(record);
     return true;
   }

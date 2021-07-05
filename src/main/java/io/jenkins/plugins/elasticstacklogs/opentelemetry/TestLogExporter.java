@@ -17,11 +17,11 @@ import io.opentelemetry.sdk.logging.data.LogRecord;
 import io.opentelemetry.sdk.logging.export.LogExporter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 public class TestLogExporter implements LogExporter {
-
+  private static final Logger LOGGER = Logger.getLogger(TestLogExporter.class.getName());
   private final ArrayList<LogRecord> records = new ArrayList<>();
   private final ManagedChannel channel;
   private final LogsServiceGrpc.LogsServiceBlockingStub blockingStub;
@@ -37,20 +37,28 @@ public class TestLogExporter implements LogExporter {
 
   @Override
   public synchronized CompletableResultCode export(Collection<LogRecord> records) {
+    CompletableResultCode ret = CompletableResultCode.ofFailure();
     this.records.addAll(records);
     callCount++;
     if (onCall != null) {
       onCall.run();
     }
-    LogRecordConverter converter = new LogRecordConverter();
-    InstrumentationLibraryLogs.Builder instrumentationLibraryLogs = InstrumentationLibraryLogs.newBuilder().addAllLogs(
-      converter.createFromEntities(this.records));
-    ResourceLogs resourceLogs =
-      ResourceLogs.newBuilder().addInstrumentationLibraryLogs(instrumentationLibraryLogs).build();
-    ExportLogsServiceRequest request = ExportLogsServiceRequest.newBuilder().addResourceLogs(resourceLogs).build();
-    ExportLogsServiceResponse response = blockingStub.export(request);
-    //asyncStub.export(request, responseObserver);
-    return null;
+    try{
+      LogRecordConverter converter = new LogRecordConverter();
+      InstrumentationLibraryLogs.Builder instrumentationLibraryLogs = InstrumentationLibraryLogs.newBuilder().addAllLogs(
+        converter.createFromEntities(this.records));
+      ResourceLogs resourceLogs =
+        ResourceLogs.newBuilder().addInstrumentationLibraryLogs(instrumentationLibraryLogs).build();
+      ExportLogsServiceRequest request = ExportLogsServiceRequest.newBuilder().addResourceLogs(resourceLogs).build();
+      ExportLogsServiceResponse response = blockingStub.export(request);
+      //asyncStub.export(request, responseObserver);
+      LOGGER.fine(response.toString());
+      ret = CompletableResultCode.ofSuccess();
+    } catch (Exception e){
+      ret = CompletableResultCode.ofFailure();
+      LOGGER.fine(e.getMessage());
+    }
+    return ret;
   }
 
   @Override
