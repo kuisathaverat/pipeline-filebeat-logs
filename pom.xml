@@ -219,7 +219,7 @@
           <!-- The AWS SDK plugin contains some Elasticsearch classes that conflits with this plugin -->
           <pluginFirstClassLoader>true</pluginFirstClassLoader>
           <loggers>
-            <io.jenkins.plugins.pipeline_filebeat_logs>FINE</io.jenkins.plugins.pipeline_filebeat_logs>
+            <io.jenkins.plugins.elasticstacklogs>FINE</io.jenkins.plugins.elasticstacklogs>
           </loggers>
         </configuration>
       </plugin>
