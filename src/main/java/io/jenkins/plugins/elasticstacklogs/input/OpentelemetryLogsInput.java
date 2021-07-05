@@ -27,6 +27,8 @@ public class OpentelemetryLogsInput implements Input {
   public OpentelemetryLogsInput(String host, int port) {
     this.port = port;
     this.host = host;
+    //TODO allow TLS connections
+    //TODO allow authenticate connections
     exporter = new TestLogExporter(ManagedChannelBuilder.forAddress(host, port).usePlaintext());
     exporter.setOnCall(()->{
       LOGGER.info("Batch Log processed");

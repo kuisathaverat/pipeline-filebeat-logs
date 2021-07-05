@@ -2,24 +2,19 @@ package io.jenkins.plugins.elasticstacklogs;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.jenkins.plugins.elasticstacklogs.input.OpentelemetryLogsInput;
-import io.jenkins.plugins.elasticstacklogs.opentelemetry.TestLogExporter;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceResponse;
 import io.opentelemetry.proto.collector.logs.v1.LogsServiceGrpc;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.BindMode;
-import org.testcontainers.containers.GenericContainer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
@@ -33,7 +28,7 @@ public class OpentelemetryLogsInputTest {
 
     @Override
     public void export(ExportLogsServiceRequest request, StreamObserver<ExportLogsServiceResponse> responseObserver) {
-      LOGGER.info(request.toString());
+      LOGGER.info("[Server] Log received :" + request.toString());
       responseObserver.onNext(ExportLogsServiceResponse.newBuilder().build());
       responseObserver.onCompleted();
     }
@@ -59,8 +54,7 @@ public class OpentelemetryLogsInputTest {
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
-        // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-        System.err.println("*** shutting down gRPC server since JVM is shutting down");
+        LOGGER.info("[Server] shutting down gRPC server since JVM is shutting down");
         try {
           if (server != null) {
             server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
@@ -68,7 +62,7 @@ public class OpentelemetryLogsInputTest {
         } catch (InterruptedException e) {
           e.printStackTrace(System.err);
         }
-        System.err.println("*** server shut down");
+        LOGGER.info("[Server] server shut down");
       }
     });
   }
