@@ -18,7 +18,7 @@
     <jenkins.version>2.277.1</jenkins.version>
     <java.level>8</java.level>
     <useBeta>true</useBeta>
-    <elasticstack.version>7.13.2</elasticstack.version>
+    <elasticstack.version>7.13.3</elasticstack.version>
     <ecs-logging-java.version>1.0.1</ecs-logging-java.version>
     <elastic-apm-agent.version>1.23.0</elastic-apm-agent.version>
   </properties>
