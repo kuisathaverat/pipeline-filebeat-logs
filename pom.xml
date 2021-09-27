@@ -62,7 +62,7 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-2.277.x</artifactId>
-        <version>887.vae9c8ac09ff7</version>
+        <version>950.v396cb834de1e</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -136,7 +136,7 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
-      <version>1.15.3</version>
+      <version>1.16.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
