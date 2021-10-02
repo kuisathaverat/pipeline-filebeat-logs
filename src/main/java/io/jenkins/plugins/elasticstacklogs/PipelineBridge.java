@@ -23,7 +23,7 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.model.Queue;
 import hudson.model.Run;
-import io.jenkins.plugins.elasticstacklogs.config.FilebeatConfiguration;
+import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
 import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
@@ -58,7 +58,7 @@ public class PipelineBridge implements LogStorageFactory {
   @Nullable
   @Override
   public LogStorage forBuild(@NonNull FlowExecutionOwner owner) {
-    if (StringUtils.isBlank(FilebeatConfiguration.get().getInput())) {
+    if (StringUtils.isBlank(InputConfiguration.get().getInput())) {
       LOGGER.warning("There is no Filebeat input configured (Configure System/Filebeat settings).");
       return null;
     }

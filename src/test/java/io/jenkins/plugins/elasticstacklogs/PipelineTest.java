@@ -20,7 +20,7 @@ import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import io.jenkins.plugins.elasticstacklogs.config.ElasticStackConfiguration;
-import io.jenkins.plugins.elasticstacklogs.config.FilebeatConfiguration;
+import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
 import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
 import io.jenkins.plugins.elasticstacklogs.log.Retriever;
 import org.elasticsearch.action.search.SearchResponse;
@@ -45,7 +45,7 @@ public class PipelineTest {
   @Rule
   public JenkinsRule r = new JenkinsRule();
   private ElasticStackConfiguration elasticStackConfiguration;
-  private FilebeatConfiguration filebeatConfiguration;
+  private InputConfiguration inputConfiguration;
   private Retriever retriever;
 
   @BeforeClass
@@ -56,24 +56,24 @@ public class PipelineTest {
   @Before
   public void setUp() throws Exception {
     elasticStackConfiguration = ElasticStackConfiguration.get();
-    filebeatConfiguration = FilebeatConfiguration.get();
+    inputConfiguration = InputConfiguration.get();
     SystemCredentialsProvider.getInstance()
       .getCredentials()
       .add(new UsernamePasswordCredentialsImpl(
         CredentialsScope.GLOBAL,
         CRED_ID, "",
         ElasticsearchContainer.USER_NAME, ElasticsearchContainer.PASSWORD));
-    filebeatConfiguration.setInput("tcp://localhost:9000");
+    inputConfiguration.setInput("tcp://localhost:9000");
     elasticStackConfiguration.setElasticsearchUrl("http://localhost:9200");
     elasticStackConfiguration.setKibanaUrl("http://localhost:5601");
     elasticStackConfiguration.setCredentialsId(CRED_ID);
-    filebeatConfiguration.setIndexPattern(ElasticsearchContainer.INDEX_PATTERN);
+    inputConfiguration.setIndexPattern(ElasticsearchContainer.INDEX_PATTERN);
 
     retriever = new Retriever(
       ElasticStackConfiguration.get().getElasticsearchUrl(),
       ElasticsearchContainer.USER_NAME,
       ElasticsearchContainer.PASSWORD,
-      FilebeatConfiguration.get().getIndexPattern()
+      InputConfiguration.get().getIndexPattern()
     );
   }
 

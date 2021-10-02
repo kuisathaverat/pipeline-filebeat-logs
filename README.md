@@ -68,3 +68,11 @@ you have to check the Jenkins logs for more details.
 # Enable APM
 
     -javaagent:classpath:/var/lib/jenkins_home/plugins/../elastic-apm-agent.jar
+
+# Libraries
+
+* [Elasticsearch Java REST Client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/index.html)
+* [OpenTelemetry Java](https://github.com/open-telemetry/opentelemetry-java)
+* [OpenTelemetry Logging](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/logs/overview.md)
+* [OpenTelemetry logs data model](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/logs/data-model.md)
+* [OpenTelemetry logs protocol](https://github.com/open-telemetry/opentelemetry-proto/blob/main/opentelemetry/proto/logs/v1/logs.proto)

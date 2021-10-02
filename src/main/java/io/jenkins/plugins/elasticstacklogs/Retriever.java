@@ -21,7 +21,7 @@ import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.console.AnnotatedLargeText;
 import io.jenkins.plugins.elasticstacklogs.config.ElasticStackConfiguration;
-import io.jenkins.plugins.elasticstacklogs.config.FilebeatConfiguration;
+import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
 import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -77,7 +77,7 @@ public class Retriever {
       ElasticStackConfiguration.get().getElasticsearchUrl(),
       creds.getUsername(),
       creds.getPassword().getPlainText(),
-      FilebeatConfiguration.get().getIndexPattern()
+      InputConfiguration.get().getIndexPattern()
     );
     try (Writer w = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
       String kibanaUrl = ElasticStackConfiguration.get().getKibanaUrl();
@@ -125,16 +125,16 @@ public class Retriever {
   private String buildDiscoverURL(@CheckForNull String nodeId) throws IOException {
     String kibanaUrl = ElasticStackConfiguration.get().getKibanaUrl();
     return kibanaUrl + "/app/discover#/?" +
-      "_g=(" +
-      "time:(from:%27" + buildInfo.getStartTime() + "%27,to:now)" +
-      ")" +
-      "&_a=(" +
-      "index:%27" + FilebeatConfiguration.get().getIndexPattern() + "%27," +
-      "query:(" +
-      "language:kuery," +
-      "query:" + buildKuery(nodeId) +
-      ")" +
-      ")&f=1";
+           "_g=(" +
+           "time:(from:%27" + buildInfo.getStartTime() + "%27,to:now)" +
+           ")" +
+           "&_a=(" +
+           "index:%27" + InputConfiguration.get().getIndexPattern() + "%27," +
+           "query:(" +
+           "language:kuery," +
+           "query:" + buildKuery(nodeId) +
+           ")" +
+           ")&f=1";
   }
 
   private String buildKuery(@CheckForNull String nodeId) throws IOException {

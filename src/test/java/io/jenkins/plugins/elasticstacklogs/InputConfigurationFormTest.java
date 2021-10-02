@@ -17,7 +17,7 @@
 
 package io.jenkins.plugins.elasticstacklogs;
 
-import io.jenkins.plugins.elasticstacklogs.config.FilebeatConfiguration;
+import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
 import org.junit.Test;
 import hudson.util.FormValidation;
 import static org.junit.Assert.assertEquals;
@@ -25,11 +25,11 @@ import static org.junit.Assert.assertEquals;
 /**
  * tests related to form validations that not need a Jenkins instance.
  */
-public class FilebeatConfigurationFormTest {
+public class InputConfigurationFormTest {
 
   @Test
   public void testDoCheckInput() {
-    FilebeatConfiguration config = new FilebeatConfiguration(true);
+    InputConfiguration config = new InputConfiguration(true);
     assertEquals(config.doCheckInput("http://example.com:1000").kind, FormValidation.Kind.ERROR);
     assertEquals(config.doCheckInput("").kind, FormValidation.Kind.WARNING);
     assertEquals(config.doCheckInput("file://dir/dir/file").kind, FormValidation.Kind.OK);
@@ -41,7 +41,7 @@ public class FilebeatConfigurationFormTest {
 
   @Test
   public void testDoCheckIndexPattern() {
-    FilebeatConfiguration config = new FilebeatConfiguration(true);
+    InputConfiguration config = new InputConfiguration(true);
     assertEquals(config.doCheckIndexPattern("foo").kind, FormValidation.Kind.OK);
     assertEquals(config.doCheckIndexPattern("").kind, FormValidation.Kind.WARNING);
   }

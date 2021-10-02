@@ -15,8 +15,8 @@
   <properties>
     <revision>0.3.0</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.277.1</jenkins.version>
-    <java.level>8</java.level>
+    <jenkins.version>2.289.2</jenkins.version>
+    <java.level>11</java.level>
     <useBeta>true</useBeta>
     <elasticstack.version>7.13.2</elasticstack.version>
     <ecs-logging-java.version>1.0.1</ecs-logging-java.version>
@@ -61,8 +61,22 @@
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.277.x</artifactId>
+        <artifactId>bom-2.289.x</artifactId>
         <version>950.v396cb834de1e</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.opentelemetry</groupId>
+        <artifactId>opentelemetry-bom</artifactId>
+        <version>1.2.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-bom</artifactId>
+        <version>1.38.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -89,7 +103,16 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.20</version>
+        <version>1.21</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.12.3</version>
+      </dependency>
+      <dependency>
+        <groupId>io.jenkins.plugins</groupId>
+        <artifactId>snakeyaml-api</artifactId>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -107,6 +130,52 @@
       <groupId>org.elasticsearch.client</groupId>
       <artifactId>elasticsearch-rest-high-level-client</artifactId>
       <version>${elasticstack.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-api</artifactId>
+      <version>1.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-sdk</artifactId>
+      <version>1.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-sdk-extension-logging</artifactId>
+      <version>1.2.0-alpha</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-proto</artifactId>
+      <version>1.2.0-alpha</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-netty-shaded</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+    </dependency>
+    <dependency> <!-- see maskClasses config -->
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <!--
+      java.lang.NoSuchMethodError: 'void com.google.common.base.Preconditions.checkArgument(boolean, java.lang.String, char, java.lang.Object)'
+      -->
+      <version>20.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.auto.value</groupId>
+      <artifactId>auto-value-annotations</artifactId>
+      <version>1.8.1</version>
     </dependency>
     <!--
     <dependency>
@@ -150,7 +219,7 @@
           <!-- The AWS SDK plugin contains some Elasticsearch classes that conflits with this plugin -->
           <pluginFirstClassLoader>true</pluginFirstClassLoader>
           <loggers>
-            <io.jenkins.plugins.pipeline_filebeat_logs>FINE</io.jenkins.plugins.pipeline_filebeat_logs>
+            <io.jenkins.plugins.elasticstacklogs>FINE</io.jenkins.plugins.elasticstacklogs>
           </loggers>
         </configuration>
       </plugin>
