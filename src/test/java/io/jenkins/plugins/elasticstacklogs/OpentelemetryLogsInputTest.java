@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.testcontainers.DockerClientFactory;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
@@ -33,14 +34,7 @@ public class OpentelemetryLogsInputTest {
       responseObserver.onCompleted();
     }
   }
-  /* FIXME enable logs support on opentelemetry-collector
-  @Rule
-  public GenericContainer otelCollector = new GenericContainer("otel/opentelemetry-collector-dev:latest")
-    .withClasspathResourceMapping("otel-collector.yml", "/otel-collector.yml", BindMode.READ_ONLY)
-    .withFileSystemBind(workdir.getAbsolutePath(), "/tmp", BindMode.READ_WRITE)
-    .withCommand("--config /otel-collector.yml --log-level DEBUG --log-profile dev ")
-    .withStartupTimeout(Duration.ofMinutes(1));
-*/
+
   @BeforeClass
   public static void requiresDocker() {
     assumeTrue(DockerClientFactory.instance().isDockerAvailable());

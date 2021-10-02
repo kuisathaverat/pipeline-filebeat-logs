@@ -19,4 +19,8 @@ service:
         - batch
       exporters:
         - logging
-
+    logs:
+        receivers:
+            - otlp
+        exporters:
+            - logging
