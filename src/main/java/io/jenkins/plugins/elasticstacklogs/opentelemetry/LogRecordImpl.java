@@ -13,8 +13,9 @@ import io.opentelemetry.sdk.logging.data.LogRecord;
 public class LogRecordImpl extends LogRecord {
 
   private io.opentelemetry.proto.logs.v1.LogRecord record;
-  public LogRecordImpl(io.opentelemetry.proto.logs.v1.LogRecord record){
-  this.record = record;
+
+  public LogRecordImpl(io.opentelemetry.proto.logs.v1.LogRecord record) {
+    this.record = record;
   }
 
   @Override

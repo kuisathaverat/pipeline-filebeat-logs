@@ -183,7 +183,7 @@ public class Retriever {
    */
   public boolean indexExists() throws IOException {
     boolean ret = false;
-    if(StringUtils.isNotBlank(index)){
+    if (StringUtils.isNotBlank(index)) {
       try (RestHighLevelClient client = new RestHighLevelClient(getBuilder())) {
         GetIndexRequest request = new GetIndexRequest(index);
         ret = client.indices().exists(request, RequestOptions.DEFAULT);

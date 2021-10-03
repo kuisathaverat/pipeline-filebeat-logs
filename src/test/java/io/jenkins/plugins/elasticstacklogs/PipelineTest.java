@@ -9,6 +9,7 @@ import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import io.jenkins.plugins.elasticstacklogs.config.ElasticStackConfiguration;
 import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
+import io.jenkins.plugins.elasticstacklogs.config.TCPInputConf;
 import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
 import io.jenkins.plugins.elasticstacklogs.log.Retriever;
 import org.elasticsearch.action.search.SearchResponse;
@@ -51,7 +52,7 @@ public class PipelineTest {
         CredentialsScope.GLOBAL,
         CRED_ID, "",
         ElasticsearchContainer.USER_NAME, ElasticsearchContainer.PASSWORD));
-    inputConfiguration.setInput("tcp://localhost:9000");
+    inputConfiguration.setInput(new TCPInputConf("localhost", 9000));
     elasticStackConfiguration.setElasticsearchUrl("http://localhost:9200");
     elasticStackConfiguration.setKibanaUrl("http://localhost:5601");
     elasticStackConfiguration.setCredentialsId(CRED_ID);

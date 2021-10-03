@@ -14,7 +14,7 @@ def st=namespace("jelly:stapler")
 l.layout(norefresh:true, permission:app.ADMINISTER, title:my.displayName, cssclass:request.getParameter('decorate')) {
   l.main_panel {
     h1 {
-      l.icon(src: "${resURL}/plugin/pipeline-filebeat-logs/images/elastic_stack.png", class: 'icon-xlg')
+      l.icon(src: "${resURL}/plugin/elastic-stack-logs/images/elastic_stack.png", class: 'icon-xlg')
       text(my.displayName)
     }
 

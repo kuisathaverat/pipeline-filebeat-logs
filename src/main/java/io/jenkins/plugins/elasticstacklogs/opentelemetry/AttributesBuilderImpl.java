@@ -40,7 +40,7 @@ public class AttributesBuilderImpl implements AttributesBuilder {
 
   @Override
   public AttributesBuilder putAll(Attributes attributes) {
-    attributes.forEach( (k,v) -> data.put(k,v));
+    attributes.forEach((k, v) -> data.put(k, v));
     return this;
   }
 }

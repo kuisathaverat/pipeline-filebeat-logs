@@ -13,7 +13,6 @@ import javax.annotation.CheckForNull;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,7 +49,7 @@ public class Sender implements BuildListener, Closeable {
     if (logger == null) {
       try {
         logger = new PrintStream(new OutputStream(buildInfo, nodeId), false, "UTF-8");
-      } catch (UnsupportedEncodingException | URISyntaxException x) {
+      } catch (URISyntaxException | IOException x) {
         throw new AssertionError(x);
       }
     }

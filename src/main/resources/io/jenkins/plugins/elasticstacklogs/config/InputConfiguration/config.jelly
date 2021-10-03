@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+    <f:section title="${%Input settings}">
+      <f:dropdownDescriptorSelector title="${%Input}" field="input"
+                                      description="${%Input type to send the Jenkins events.}"/>
+    </f:section>
+    <f:section title="${%Index settings}">
+      <f:entry title="${%Logs Index pattern}" field="indexPattern"
+               description="${%Index pattern that match to logs indices.}">
+        <f:textbox checkMethod="post" />
+      </f:entry>
+    </f:section>
+    <f:section>
+      <f:validateButton title="${%Validate configuration}" progress="Validating..." method="validate/"
+                        with="elasticsearchUrl,credentialsId,indexPattern"/>
+    </f:section>
+</j:jelly>

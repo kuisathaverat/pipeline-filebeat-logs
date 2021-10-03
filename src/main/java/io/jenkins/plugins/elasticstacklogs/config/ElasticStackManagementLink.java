@@ -4,18 +4,7 @@
  */
 package io.jenkins.plugins.elasticstacklogs.config;
 
-import java.io.IOException;
-import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.annotation.CheckForNull;
-import javax.servlet.ServletException;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import net.sf.json.JSONObject;
-import org.jenkinsci.Symbol;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.verb.POST;
 import hudson.BulkChange;
 import hudson.Extension;
 import hudson.Functions;
@@ -24,6 +13,18 @@ import hudson.model.Descriptor;
 import hudson.model.ManagementLink;
 import hudson.util.FormApply;
 import jenkins.model.Jenkins;
+import net.sf.json.JSONObject;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.verb.POST;
+
+import javax.annotation.CheckForNull;
+import javax.servlet.ServletException;
+import java.io.IOException;
+import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Link to the Elastic Stack configuration on Manage Configuration.
@@ -51,7 +52,7 @@ public class ElasticStackManagementLink extends ManagementLink implements Descri
 
   @Override
   public String getIconFileName() {
-    return "/plugin/pipeline-filebeat-logs/images/elastic_stack.png";
+    return "/plugin/elastic-stack-logs/images/elastic_stack.png";
   }
 
   @Override
@@ -66,7 +67,7 @@ public class ElasticStackManagementLink extends ManagementLink implements Descri
 
   @Override
   public Descriptor<ElasticStackManagementLink> getDescriptor() {
-    return Jenkins.get().getDescriptorOrDie(ElasticStackManagementLink.class);
+    return Jenkins.get().getDescriptorOrDie(getClass());
   }
 
   @POST
@@ -87,6 +88,7 @@ public class ElasticStackManagementLink extends ManagementLink implements Descri
 
   public boolean configure(StaplerRequest req, JSONObject json) throws Descriptor.FormException {
     boolean result = true;
+    Jenkins.get().checkPermission(Jenkins.ADMINISTER);
     for (Descriptor<?> d : Functions.getSortedDescriptorsForGlobalConfigByDescriptor(FILTER)) {
       result &= configureDescriptor(req, json, d);
     }
@@ -99,8 +101,8 @@ public class ElasticStackManagementLink extends ManagementLink implements Descri
     // collapse the structure to remain backward compatible with the JSON structure before 1.
     String name = d.getJsonSafeClassName();
     JSONObject js = json.has(name)
-                    ? json.getJSONObject(name)
-                    : new JSONObject(); // if it doesn't have the property, the method returns invalid null object.
+      ? json.getJSONObject(name)
+      : new JSONObject(); // if it doesn't have the property, the method returns invalid null object.
     json.putAll(js);
     return d.configure(req, js);
   }

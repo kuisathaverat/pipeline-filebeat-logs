@@ -4,10 +4,7 @@
  */
 package io.jenkins.plugins.elasticstacklogs;
 
-import io.jenkins.plugins.elasticstacklogs.input.FileInput;
-import io.jenkins.plugins.elasticstacklogs.input.InputFactory;
-import io.jenkins.plugins.elasticstacklogs.input.TCPInput;
-import io.jenkins.plugins.elasticstacklogs.input.UDPInput;
+import io.jenkins.plugins.elasticstacklogs.input.*;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -85,12 +82,5 @@ public class FileInputTest {
     int length = packet.getLength();
     int offset = packet.getOffset();
     assertEquals(new String(msgBuffer, offset, length), "foo\n");
-  }
-
-  @Test
-  public void testFactory() throws URISyntaxException {
-    assertTrue(InputFactory.createInput(new URI("file://path/file")) instanceof FileInput);
-    assertTrue(InputFactory.createInput(new URI("tcp://host:port")) instanceof TCPInput);
-    assertTrue(InputFactory.createInput(new URI("udp://host:port")) instanceof UDPInput);
   }
 }

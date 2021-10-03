@@ -4,14 +4,12 @@
  */
 package io.jenkins.plugins.elasticstacklogs.config;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import javax.annotation.Nonnull;
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.Extension;
+import hudson.ExtensionList;
+import hudson.util.FormValidation;
 import io.jenkins.plugins.elasticstacklogs.log.Retriever;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -21,11 +19,12 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.interceptor.RequirePOST;
-import hudson.Extension;
-import hudson.ExtensionList;
-import hudson.Util;
-import hudson.util.FormValidation;
-import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Stores the configuration of the Inputs.
@@ -36,7 +35,7 @@ public class InputConfiguration extends AbstractElasticStackGlobalConfiguration 
   private static final List<String> validSchemas = Arrays.asList("tcp", "udp", "file", "otel");
 
   @CheckForNull
-  private String input;
+  private InputConf input;
   @CheckForNull
   private String indexPattern = "filebeat-*";
 
@@ -66,17 +65,16 @@ public class InputConfiguration extends AbstractElasticStackGlobalConfiguration 
   @NonNull
   @Override
   public String getDisplayName() {
-    return "Filebeat Logs settings";
+    return "Logs settings";
   }
 
   @CheckForNull
-  public String getInput() {
+  public InputConf getInput() {
     return input;
   }
 
-  @DataBoundSetter
-  public void setInput(String input) {
-    this.input = Util.fixNull(input);
+  public void setInput(@CheckForNull InputConf input) {
+    this.input = input;
   }
 
   @CheckForNull
@@ -90,22 +88,9 @@ public class InputConfiguration extends AbstractElasticStackGlobalConfiguration 
   }
 
   @RequirePOST
-  public FormValidation doCheckInput(@QueryParameter("input") String uri) {
-    if (StringUtils.isEmpty(uri)) {
-      return FormValidation.warning("The Filebeat input is required.");
-    }
-    URI checkUri = URI.create(uri);
-    if (validSchemas.contains(checkUri.getScheme())) {
-      return FormValidation.ok();
-    }
-
-    return FormValidation.error("The Filebeat input URI is not valid.");
-  }
-
-  @RequirePOST
   public FormValidation doCheckIndexPattern(@QueryParameter String indexPattern) {
     if (StringUtils.isEmpty(indexPattern)) {
-      return FormValidation.warning("The Filebeat index pattern is required.");
+      return FormValidation.warning("The index pattern is required.");
     }
     return FormValidation.ok();
   }
@@ -115,7 +100,7 @@ public class InputConfiguration extends AbstractElasticStackGlobalConfiguration 
                                    @QueryParameter String elasticsearchUrl, @QueryParameter String indexPattern) {
     FormValidation elasticsearchUrlValidation =
       ElasticStackConfiguration.get().doCheckElasticsearchUrl(elasticsearchUrl);
-    if(elasticsearchUrlValidation.kind != FormValidation.Kind.OK){
+    if (elasticsearchUrlValidation.kind != FormValidation.Kind.OK) {
       return elasticsearchUrlValidation;
     }
 
@@ -142,9 +127,9 @@ public class InputConfiguration extends AbstractElasticStackGlobalConfiguration 
 
   @Override
   public String toString() {
-    return "FilebeatConfiguration{" +
-      ", input='" + input + '\'' +
-      ", indexPattern='" + indexPattern + '\'' +
+    return "InputConfiguration{" +
+      ", input='" + (input != null ? input.getClass().getName() : "None") + '\'' +
+      ", indexPattern='" + (indexPattern != null ? indexPattern : "None") + '\'' +
       '}';
   }
 }

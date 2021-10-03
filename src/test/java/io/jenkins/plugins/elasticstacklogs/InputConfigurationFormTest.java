@@ -15,18 +15,6 @@ import static org.junit.Assert.assertEquals;
 public class InputConfigurationFormTest {
 
   @Test
-  public void testDoCheckInput() {
-    InputConfiguration config = new InputConfiguration(true);
-    assertEquals(config.doCheckInput("http://example.com:1000").kind, FormValidation.Kind.ERROR);
-    assertEquals(config.doCheckInput("").kind, FormValidation.Kind.WARNING);
-    assertEquals(config.doCheckInput("file://dir/dir/file").kind, FormValidation.Kind.OK);
-    assertEquals(config.doCheckInput("udp:192.168.1.100:1000").kind, FormValidation.Kind.OK);
-    assertEquals(config.doCheckInput("tcp:192.168.1.100:100").kind, FormValidation.Kind.OK);
-    assertEquals(config.doCheckInput("foo").kind, FormValidation.Kind.ERROR);
-    assertEquals(config.doCheckInput("foo://bar").kind, FormValidation.Kind.ERROR);
-  }
-
-  @Test
   public void testDoCheckIndexPattern() {
     InputConfiguration config = new InputConfiguration(true);
     assertEquals(config.doCheckIndexPattern("foo").kind, FormValidation.Kind.OK);

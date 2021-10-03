@@ -68,7 +68,7 @@ public class OpentelemetryLogsInputTest {
   @Test
   public void testLog() throws IOException, InterruptedException {
     //OpentelemetryLogsInput input = new OpentelemetryLogsInput("127.0.0.1", otelCollector.getMappedPort(4317));
-    OpentelemetryLogsInput input = new OpentelemetryLogsInput("127.0.0.1", 4317);
+    OpentelemetryLogsInput input = new OpentelemetryLogsInput("grpc://127.0.0.1:4317");
     input.write("foo");
     Thread.sleep(5000);
     assertEquals(1, input.getCount());

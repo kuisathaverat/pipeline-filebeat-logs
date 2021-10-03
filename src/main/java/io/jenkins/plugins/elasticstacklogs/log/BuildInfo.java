@@ -5,6 +5,7 @@
 package io.jenkins.plugins.elasticstacklogs.log;
 
 import hudson.model.Run;
+import io.jenkins.plugins.elasticstacklogs.config.InputConf;
 import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
 
 import javax.annotation.Nonnull;
@@ -51,7 +52,7 @@ public class BuildInfo implements Serializable {
    * Filebeat input to send the logs.
    */
   @Nonnull
-  private final String input;
+  private final InputConf input;
 
   public BuildInfo(@Nonnull Run<?, ?> build) {
     this.jobUrl = build.getParent().getAbsoluteUrl();
@@ -93,7 +94,7 @@ public class BuildInfo implements Serializable {
   }
 
   @Nonnull
-  public String getInput() {
+  public InputConf getInput() {
     return input;
   }
 

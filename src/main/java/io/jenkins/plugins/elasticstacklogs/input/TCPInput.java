@@ -6,6 +6,7 @@ package io.jenkins.plugins.elasticstacklogs.input;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.io.IOUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -13,11 +14,12 @@ import java.net.Socket;
 /**
  * Implementation for the TCP input of filebeat.
  */
-public class TCPInput implements Input {
+public class TCPInput extends Input {
   private final int port;
   @NonNull
   private final String host;
 
+  @DataBoundConstructor
   public TCPInput(@NonNull String host, int port) {
     this.port = port;
     this.host = host;

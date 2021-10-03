@@ -1,0 +1,14 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout" xmlns:st="jelly:stapler">
+  <l:layout title="Elasticsearch logs">
+    <l:side-panel>
+      <st:include page="sidepanel.jelly" it="${it.run}" optional="true" />
+    </l:side-panel>
+    <l:main-panel>
+      <h1>
+        Elasticsearch <a href="${it.linkLogs}" target="_blank">Logs</a>
+        Elasticsearch <a href="${it.linkDiscover}" target="_blank">Discover</a>
+      </h1>
+    </l:main-panel>
+  </l:layout>
+</j:jelly>

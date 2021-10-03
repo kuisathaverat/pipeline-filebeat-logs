@@ -29,10 +29,10 @@ public class LogRecordConverter {
         .setTimeUnixNano(u.getTimeUnixNano())
         .setTraceId(ByteString.copyFrom(u.getTraceId().getBytes()));
       u.getAttributes().forEach((k, v) -> builder.addAttributes(
-          KeyValue.newBuilder()
-            .setKey(k.getKey())
-            .setValue(io.opentelemetry.proto.common.v1.AnyValue.newBuilder().setStringValue(String.valueOf(k)))
-            .build()
+        KeyValue.newBuilder()
+          .setKey(k.getKey())
+          .setValue(io.opentelemetry.proto.common.v1.AnyValue.newBuilder().setStringValue(String.valueOf(k)))
+          .build()
       ));
       return builder.build();
     }

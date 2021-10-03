@@ -67,13 +67,6 @@ public class Retriever {
       InputConfiguration.get().getIndexPattern()
     );
     try (Writer w = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
-      String kibanaUrl = ElasticStackConfiguration.get().getKibanaUrl();
-      if (StringUtils.isNotBlank(kibanaUrl)) {
-        // TODO build a proper Kibana URL with a filter.
-        w.write("[view in <a href=\"" + buildLogsURL(nodeId) + "\">Kibana Logs</a>]\n");
-        w.write("[view in <a href=\"" + buildDiscoverURL(nodeId) + "\">Kibana Discover</a>]\n");
-      }
-
       SearchResponse searchResponse = retriever.search(buildInfo.getKey(), nodeId);
       String scrollId = searchResponse.getScrollId();
       SearchHit[] searchHits = searchResponse.getHits().getHits();
@@ -91,45 +84,6 @@ public class Retriever {
       }
       w.flush();
     }
-  }
-
-  private String buildLogsURL(@CheckForNull String nodeId) throws IOException {
-    String kibanaUrl = ElasticStackConfiguration.get().getKibanaUrl();
-    return kibanaUrl + "/app/logs/stream?" +
-      "flyoutOptions=(" +
-      "flyoutId:!n," +
-      "flyoutVisibility:hidden," +
-      "surroundingLogsId:!n)" +
-      "&logPosition=(" +
-      "end:now," +
-      "start:%27" + buildInfo.getStartTime() + "%27," +
-      "streamLive:!f)" +
-      "&logFilter=(" +
-      "expression:" + buildKuery(nodeId) +
-      ",kind:kuery)&f=1";
-  }
-
-  private String buildDiscoverURL(@CheckForNull String nodeId) throws IOException {
-    String kibanaUrl = ElasticStackConfiguration.get().getKibanaUrl();
-    return kibanaUrl + "/app/discover#/?" +
-           "_g=(" +
-           "time:(from:%27" + buildInfo.getStartTime() + "%27,to:now)" +
-           ")" +
-           "&_a=(" +
-           "index:%27" + InputConfiguration.get().getIndexPattern() + "%27," +
-           "query:(" +
-           "language:kuery," +
-           "query:" + buildKuery(nodeId) +
-           ")" +
-           ")&f=1";
-  }
-
-  private String buildKuery(@CheckForNull String nodeId) throws IOException {
-    String nodeQuery = "";
-    if (StringUtils.isNotBlank(nodeId)) {
-      nodeQuery = "%20AND%20job.node:%27" + nodeId + "%27";
-    }
-    return "%27job.id:" + buildInfo.getKey() + nodeQuery + "%27";
   }
 
   private void writeOutput(Writer w, SearchHit[] searchHits) throws IOException {
