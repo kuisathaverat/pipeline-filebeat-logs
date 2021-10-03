@@ -39,7 +39,7 @@ public class ElasticsearchContainer extends GenericContainer {
   public static final String JOB_NAME_VALUE = "test";
 
   public ElasticsearchContainer() {
-    super("docker.elastic.co/elasticsearch/elasticsearch:7.12.0");
+    super("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
     withExposedPorts(ES_PORT);
     withEnv("ES_JAVA_OPTS", "-Xms512m -Xmx512m");
     withEnv("discovery.type", "single-node");

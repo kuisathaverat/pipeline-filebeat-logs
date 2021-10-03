@@ -33,7 +33,7 @@ public class FileInputTest {
   private static final File workdir = new File("/tmp");
 
   @Rule
-  public GenericContainer filebeatContainer = new GenericContainer("docker.elastic.co/beats/filebeat:7.12.0")
+  public GenericContainer filebeatContainer = new GenericContainer("docker.elastic.co/beats/filebeat:7.15.0")
     .withExposedPorts(9000)
     .withClasspathResourceMapping("filebeat.yml", "/usr/share/filebeat/filebeat.yml", BindMode.READ_ONLY)
     .withFileSystemBind(workdir.getAbsolutePath(), "/tmp", BindMode.READ_WRITE)
