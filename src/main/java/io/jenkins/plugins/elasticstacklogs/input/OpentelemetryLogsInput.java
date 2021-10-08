@@ -47,9 +47,7 @@ public class OpentelemetryLogsInput extends Input {
     } else {
       exporter = new TestLogExporter(ManagedChannelBuilder.forAddress(host, port).usePlaintext());
     }
-    exporter.setOnCall(() -> {
-      LOGGER.info("Batch Log processed");
-    });
+    exporter.setOnCall(() -> LOGGER.info("Batch Log processed"));
     processor = BatchLogProcessor.builder(exporter)
       .setMaxExportBatchSize(BATCH_SIZE)
       .setMaxQueueSize(MAX_QUEUE_SIZE)
@@ -57,12 +55,12 @@ public class OpentelemetryLogsInput extends Input {
       .build();
   }
 
-  private final static int getEndpointPort(@NonNull String endpoint) {
+  private static int getEndpointPort(@NonNull String endpoint) {
     int port = GRPC_PORT;
     String protocol = getProtocol(endpoint);
-    String endpointNoProtocol = endpoint.replaceAll(endpoint, protocol);
+    String endpointNoProtocol = endpoint.replace(protocol, "");
     if (endpointNoProtocol.contains(PORT_SP)) {
-      port = Integer.valueOf(endpointNoProtocol.split(PORT_SP)[1]);
+      port = Integer.parseInt(endpointNoProtocol.split(PORT_SP)[1]);
     } else if (protocol.equals(HTTP)) {
       port = HTTP_PORT;
     } else if (protocol.equals(HTTPS)) {
@@ -73,9 +71,9 @@ public class OpentelemetryLogsInput extends Input {
     return port;
   }
 
-  private final static String getEndpointHost(@NonNull String endpoint) {
+  private static String getEndpointHost(@NonNull String endpoint) {
     String protocol = getProtocol(endpoint);
-    String endpointNoProtocol = endpoint.replaceAll(endpoint, protocol);
+    String endpointNoProtocol = endpoint.replace(protocol, "");
     String host = endpointNoProtocol;
     if (endpointNoProtocol.contains(PORT_SP)) {
       host = endpointNoProtocol.split(PORT_SP)[0];
@@ -83,7 +81,7 @@ public class OpentelemetryLogsInput extends Input {
     return host;
   }
 
-  private final static String getProtocol(String endpoint) {
+  private static String getProtocol(String endpoint) {
     String ret = GRPC;
     if (endpoint.contains(HTTPS)) {
       ret = HTTPS;
