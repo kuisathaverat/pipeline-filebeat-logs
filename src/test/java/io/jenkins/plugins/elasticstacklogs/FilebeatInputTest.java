@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
-public class FileInputTest {
+public class FilebeatInputTest {
 
   private static final File workdir = new File("/tmp");
 
@@ -34,7 +35,7 @@ public class FileInputTest {
     .withExposedPorts(9000)
     .withClasspathResourceMapping("filebeat.yml", "/usr/share/filebeat/filebeat.yml", BindMode.READ_ONLY)
     .withFileSystemBind(workdir.getAbsolutePath(), "/tmp", BindMode.READ_WRITE)
-    .withStartupTimeout(Duration.ofMinutes(1));
+    .withCommand("--strict.perms=false");
 
   @BeforeClass
   public static void requiresDocker() {
@@ -46,7 +47,7 @@ public class FileInputTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
   }
 
   @Test
