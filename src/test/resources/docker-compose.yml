@@ -16,13 +16,24 @@ services:
       - ELASTIC_PASSWORD=changeme
     image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
     ports:
-      - 127.0.0.1:9200:9200
+      - "127.0.0.1:9200:9200"
     healthcheck:
-      interval: '20'
+      interval: 20s
       retries: 10
       test:
         - CMD-SHELL
         - curl -s -k http://localhost:9200/_cluster/health | grep -vq '"status":"red"'
+  otel-collector:
+    image: otel/opentelemetry-collector-dev:latest
+    command:
+      - /otelcol
+      - --config=/otel-collector.yml
+      - --log-level=DEBUG
+      - --log-profile=dev
+    ports:
+      - "127.0.0.1:4317:4317"
+    volumes:
+      - ./otel-collector.yml:/otel-collector.yml
   filebeat:
     command:
       - filebeat
@@ -46,8 +57,8 @@ services:
     environment: {}
     image: docker.elastic.co/beats/filebeat:7.15.0
     ports:
-      - 127.0.0.1:8000:8000/udp
-      - 127.0.0.1:9000:9000
+      - "127.0.0.1:8000:8000/udp"
+      - "127.0.0.1:9000:9000"
     volumes:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
       - /tmp:/tmp
@@ -68,7 +79,7 @@ services:
       XPACK_XPACK_MAIN_TELEMETRY_ENABLED: 'false'
     image: docker.elastic.co/kibana/kibana:7.15.0
     ports:
-      - 127.0.0.1:5601:5601
+      - "127.0.0.1:5601:5601"
     healthcheck:
       interval: 10s
       retries: 20
