@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +34,7 @@ public class OpentelemetryLogsInputCollectorTest {
   private static final Logger LOGGER = Logger.getLogger(OpentelemetryLogsInputCollectorTest.class.getName());
 
   private static final File workdir = new File("/tmp");
+  public static final int OTEL_PORT = 4317;
   private Server server;
 
   private class LogsService extends LogsServiceGrpc.LogsServiceImplBase {
@@ -44,12 +46,13 @@ public class OpentelemetryLogsInputCollectorTest {
       responseObserver.onCompleted();
     }
   }
-  /* FIXME enable logs support on opentelemetry-collector */
   @Rule
   public GenericContainer otelCollector = new GenericContainer("otel/opentelemetry-collector-dev:latest")
     .withClasspathResourceMapping("otel-collector.yml", "/otel-collector.yml", BindMode.READ_ONLY)
     .withFileSystemBind(workdir.getAbsolutePath(), "/tmp", BindMode.READ_WRITE)
-    .withCommand("--config /otel-collector.yml --log-level DEBUG --log-profile dev ")
+    .withCommand("--config /otel-collector.yml --log-level DEBUG --log-profile dev")
+    .waitingFor(Wait.forLogMessage("^.*Everything is ready.*", 1))
+    .withExposedPorts(OTEL_PORT)
     .withStartupTimeout(Duration.ofMinutes(1));
 
   @BeforeClass
@@ -58,12 +61,12 @@ public class OpentelemetryLogsInputCollectorTest {
   }
 
   @Before
-  public void setUp() throws IOException {
+  public void setUp() {
   }
 
   @Test
   public void testLog() throws IOException, InterruptedException {
-    OpentelemetryLogsInput input = new OpentelemetryLogsInput("grpc://127.0.0.1:" + otelCollector.getMappedPort(4317));
+    OpentelemetryLogsInput input = new OpentelemetryLogsInput("grpc://127.0.0.1:" + otelCollector.getMappedPort(OTEL_PORT));
     input.write("foo00");
     Thread.sleep(5000);
     assertEquals(1, input.getCount());
@@ -73,11 +76,11 @@ public class OpentelemetryLogsInputCollectorTest {
     input.write("foo03");
     input.write("foo04");
     Thread.sleep(5000);
+    assertEquals(2, input.getCount());
     assertTrue(otelCollector.getLogs().contains("foo01"));
     assertTrue(otelCollector.getLogs().contains("foo02"));
     assertTrue(otelCollector.getLogs().contains("foo03"));
     assertTrue(otelCollector.getLogs().contains("foo04"));
-    assertEquals(2, input.getCount());
     for(int i=0; i<20; i++){
       input.write("foo" + i);
     }
