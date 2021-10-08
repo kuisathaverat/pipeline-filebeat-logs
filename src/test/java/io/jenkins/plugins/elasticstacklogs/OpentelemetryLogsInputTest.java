@@ -6,6 +6,7 @@ package io.jenkins.plugins.elasticstacklogs;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import io.grpc.Server;
@@ -21,6 +22,8 @@ import org.junit.Test;
 import org.testcontainers.DockerClientFactory;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 public class OpentelemetryLogsInputTest {
@@ -28,6 +31,7 @@ public class OpentelemetryLogsInputTest {
 
   private static final File workdir = new File("/tmp");
   private Server server;
+  private int port;
 
   private class LogsService extends LogsServiceGrpc.LogsServiceImplBase {
 
@@ -46,29 +50,29 @@ public class OpentelemetryLogsInputTest {
 
   @Before
   public void setUp() throws IOException {
-    server = ServerBuilder.forPort(4317).addService(new LogsService())
+    try (ServerSocket serverSocket = new ServerSocket(0)) {
+      assertTrue(serverSocket.getLocalPort() > 0);
+      port = serverSocket.getLocalPort();
+    }
+    server = ServerBuilder.forPort(port).addService(new LogsService())
                           .build();
     server.start();
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      @Override
-      public void run() {
-        LOGGER.info("[Server] shutting down gRPC server since JVM is shutting down");
-        try {
-          if (server != null) {
-            server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
-          }
-        } catch (InterruptedException e) {
-          e.printStackTrace(System.err);
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      LOGGER.info("[Server] shutting down gRPC server since JVM is shutting down");
+      try {
+        if (server != null) {
+          server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
         }
-        LOGGER.info("[Server] server shut down");
+      } catch (InterruptedException e) {
+        e.printStackTrace(System.err);
       }
-    });
+      LOGGER.info("[Server] server shut down");
+    }));
   }
 
   @Test
   public void testLog() throws IOException, InterruptedException {
-    //OpentelemetryLogsInput input = new OpentelemetryLogsInput("127.0.0.1", otelCollector.getMappedPort(4317));
-    OpentelemetryLogsInput input = new OpentelemetryLogsInput("grpc://127.0.0.1:4317");
+    OpentelemetryLogsInput input = new OpentelemetryLogsInput("grpc://127.0.0.1:" + port);
     input.write("foo");
     Thread.sleep(5000);
     assertEquals(1, input.getCount());
