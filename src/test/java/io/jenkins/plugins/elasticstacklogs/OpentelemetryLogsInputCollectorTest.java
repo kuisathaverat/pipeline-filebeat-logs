@@ -31,13 +31,12 @@ public class OpentelemetryLogsInputCollectorTest {
   private static final Logger LOGGER = Logger.getLogger(OpentelemetryLogsInputCollectorTest.class.getName());
   private static final File workdir = new File("/tmp");
   @Rule
-  public GenericContainer otelCollector = new GenericContainer(
-    "otel/opentelemetry-collector-dev:latest").withClasspathResourceMapping("otel-collector.yml", "/otel-collector.yml",
-                                                                            BindMode.READ_ONLY).withFileSystemBind(
-    workdir.getAbsolutePath(), "/tmp", BindMode.READ_WRITE).withCommand(
-    "--config /otel-collector.yml --log-level DEBUG --log-profile dev").waitingFor(
-    Wait.forLogMessage("^.*Everything is ready.*", 1)).withExposedPorts(OTEL_PORT).withStartupTimeout(
-    Duration.ofMinutes(1));
+  public GenericContainer otelCollector = new GenericContainer("otel/opentelemetry-collector-dev:latest")
+    .withClasspathResourceMapping("otel-collector.yml", "/otel-collector.yml", BindMode.READ_ONLY)
+    .withFileSystemBind(workdir.getAbsolutePath(), "/tmp", BindMode.READ_WRITE)
+    .withCommand("--config /otel-collector.yml --log-level DEBUG --log-profile dev")
+    .waitingFor(Wait.forLogMessage("^.*Everything is ready.*", 1)).withExposedPorts(OTEL_PORT)
+    .withStartupTimeout(Duration.ofMinutes(1));
   private Server server;
 
   @BeforeClass

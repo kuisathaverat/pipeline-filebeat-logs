@@ -102,6 +102,7 @@ public class ElasticsearchContainer extends GenericContainer {
                                           Retriever.now(), Retriever.JOB_NAME, JOB_NAME_VALUE, Retriever.JOB_URL,
                                           JOB_URL_VALUE, Retriever.JOB_ID, BuildInfo.getKey(JOB_URL_VALUE, buildID),
                                           Retriever.JOB_NODE, lineNumber % 2 == 0 ? "1" : null, Retriever.MESSAGE,
-                                          "Line " + lineNumber);
+                                          "Line " + lineNumber
+                                         );
   }
 }

@@ -51,8 +51,8 @@ public class LogStorageImpl implements LogStorage {
 
   @NonNull
   @Override
-  public AnnotatedLargeText<FlowExecutionOwner.Executable> overallLog(@NonNull FlowExecutionOwner.Executable build,
-                                                                      boolean complete) {
+  public AnnotatedLargeText<FlowExecutionOwner.Executable> overallLog(
+    @NonNull FlowExecutionOwner.Executable build, boolean complete) {
     try {
       return new Retriever(buildInfo).overallLog(build, complete);
     } catch (Exception x) {

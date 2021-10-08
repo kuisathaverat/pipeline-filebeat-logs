@@ -21,10 +21,10 @@ public class LogRecordConverter {
     public io.opentelemetry.proto.logs.v1.LogRecord apply(LogRecord u) {
       io.opentelemetry.proto.logs.v1.LogRecord.Builder builder = io.opentelemetry.proto.logs.v1.LogRecord.newBuilder();
       builder.setName(u.getName()).setBody(
-        io.opentelemetry.proto.common.v1.AnyValue.newBuilder().setStringValue(u.getBody().getStringValue())).setFlags(
-        u.getFlags()).setSeverityNumberValue(u.getSeverity().getSeverityNumber()).setSpanId(
-        ByteString.copyFrom(u.getSpanId().getBytes())).setTimeUnixNano(u.getTimeUnixNano()).setTraceId(
-        ByteString.copyFrom(u.getTraceId().getBytes()));
+               io.opentelemetry.proto.common.v1.AnyValue.newBuilder().setStringValue(u.getBody().getStringValue()))
+             .setFlags(u.getFlags()).setSeverityNumberValue(u.getSeverity().getSeverityNumber())
+             .setSpanId(ByteString.copyFrom(u.getSpanId().getBytes())).setTimeUnixNano(u.getTimeUnixNano())
+             .setTraceId(ByteString.copyFrom(u.getTraceId().getBytes()));
       u.getAttributes().forEach((k, v) -> builder.addAttributes(KeyValue.newBuilder().setKey(k.getKey()).setValue(
         io.opentelemetry.proto.common.v1.AnyValue.newBuilder().setStringValue(String.valueOf(k))).build()));
       return builder.build();

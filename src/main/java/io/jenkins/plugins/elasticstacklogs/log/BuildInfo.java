@@ -99,10 +99,12 @@ public class BuildInfo implements Serializable {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o)
+    if (this == o) {
       return true;
-    if (o == null || getClass() != o.getClass())
+    }
+    if (o == null || getClass() != o.getClass()) {
       return false;
+    }
     BuildInfo buildInfo = (BuildInfo) o;
     return jobUrl.equals(buildInfo.jobUrl) && buildId.equals(buildInfo.buildId) && jobName.equals(buildInfo.jobName)
            && input.equals(buildInfo.input);

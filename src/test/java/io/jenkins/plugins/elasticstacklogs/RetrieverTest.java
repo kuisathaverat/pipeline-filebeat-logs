@@ -32,7 +32,8 @@ public class RetrieverTest {
   @Test
   public void testRetrieve() throws IOException {
     Retriever retriever = new Retriever(esContainer.getUrl(), ElasticsearchContainer.USER_NAME,
-                                        ElasticsearchContainer.PASSWORD, ElasticsearchContainer.INDEX);
+                                        ElasticsearchContainer.PASSWORD, ElasticsearchContainer.INDEX
+    );
     SearchResponse searchResponse = retriever.search(BuildInfo.getKey(ElasticsearchContainer.JOB_URL_VALUE, "2"));
     String scrollId = searchResponse.getScrollId();
     SearchHit[] searchHits = searchResponse.getHits().getHits();
@@ -53,7 +54,8 @@ public class RetrieverTest {
   @Test
   public void testRetrieveNodeId() throws IOException {
     Retriever retriever = new Retriever(esContainer.getUrl(), ElasticsearchContainer.USER_NAME,
-                                        ElasticsearchContainer.PASSWORD, ElasticsearchContainer.INDEX);
+                                        ElasticsearchContainer.PASSWORD, ElasticsearchContainer.INDEX
+    );
     SearchResponse searchResponse = retriever.search(BuildInfo.getKey(ElasticsearchContainer.JOB_URL_VALUE, "2"), "1");
     String scrollId = searchResponse.getScrollId();
     SearchHit[] searchHits = searchResponse.getHits().getHits();

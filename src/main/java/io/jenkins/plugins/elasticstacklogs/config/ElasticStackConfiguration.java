@@ -117,9 +117,8 @@ public class ElasticStackConfiguration extends AbstractElasticStackGlobalConfigu
     Optional<Credentials> optionalCredentials = SystemCredentialsProvider.getInstance().getCredentials().stream()
                                                                          .filter(credentials ->
                                                                                    (credentials instanceof UsernamePasswordCredentials)
-                                                                                   && ((IdCredentials) credentials).getId()
-                                                                                                                   .equals(
-                                                                                                                     credentialsId))
+                                                                                   && ((IdCredentials) credentials)
+                                                                                     .getId().equals(credentialsId))
                                                                          .findAny();
     return (UsernamePasswordCredentials) optionalCredentials.get();
   }
@@ -167,8 +166,8 @@ public class ElasticStackConfiguration extends AbstractElasticStackGlobalConfigu
       return new StandardListBoxModel();
     }
 
-    return new StandardListBoxModel().includeEmptyValue().includeAs(ACL.SYSTEM, context,
-                                                                    StandardUsernameCredentials.class)
+    return new StandardListBoxModel().includeEmptyValue()
+                                     .includeAs(ACL.SYSTEM, context, StandardUsernameCredentials.class)
                                      .includeCurrentValue(credentialsId);
   }
 

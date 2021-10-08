@@ -95,10 +95,11 @@ public class InputConfiguration extends AbstractElasticStackGlobalConfiguration 
   }
 
   @RequirePOST
-  public FormValidation doValidate(@QueryParameter String credentialsId, @QueryParameter String elasticsearchUrl,
-                                   @QueryParameter String indexPattern) {
-    FormValidation elasticsearchUrlValidation = ElasticStackConfiguration.get().doCheckElasticsearchUrl(
-      elasticsearchUrl);
+  public FormValidation doValidate(
+    @QueryParameter String credentialsId, @QueryParameter String elasticsearchUrl,
+    @QueryParameter String indexPattern) {
+    FormValidation elasticsearchUrlValidation = ElasticStackConfiguration.get()
+                                                                         .doCheckElasticsearchUrl(elasticsearchUrl);
     if (elasticsearchUrlValidation.kind != FormValidation.Kind.OK) {
       return elasticsearchUrlValidation;
     }
@@ -106,7 +107,8 @@ public class InputConfiguration extends AbstractElasticStackGlobalConfiguration 
     try {
       UsernamePasswordCredentials jenkinsCredentials = ElasticStackConfiguration.get().getCredentials(credentialsId);
       Retriever retriever = new Retriever(elasticsearchUrl, jenkinsCredentials.getUsername(),
-                                          jenkinsCredentials.getPassword().getPlainText(), indexPattern);
+                                          jenkinsCredentials.getPassword().getPlainText(), indexPattern
+      );
       if (retriever.indexExists()) {
         return FormValidation.ok("success");
       }

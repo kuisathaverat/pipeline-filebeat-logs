@@ -50,7 +50,8 @@ public class PipelineTest {
     inputConfiguration = InputConfiguration.get();
     SystemCredentialsProvider.getInstance().getCredentials().add(
       new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, CRED_ID, "", ElasticsearchContainer.USER_NAME,
-                                          ElasticsearchContainer.PASSWORD));
+                                          ElasticsearchContainer.PASSWORD
+      ));
     inputConfiguration.setInput(new TCPInputConf("localhost", 9000));
     elasticStackConfiguration.setElasticsearchUrl("http://localhost:9200");
     elasticStackConfiguration.setKibanaUrl("http://localhost:5601");
@@ -58,7 +59,8 @@ public class PipelineTest {
     inputConfiguration.setIndexPattern(ElasticsearchContainer.INDEX_PATTERN);
 
     retriever = new Retriever(ElasticStackConfiguration.get().getElasticsearchUrl(), ElasticsearchContainer.USER_NAME,
-                              ElasticsearchContainer.PASSWORD, InputConfiguration.get().getIndexPattern());
+                              ElasticsearchContainer.PASSWORD, InputConfiguration.get().getIndexPattern()
+    );
   }
 
   @Test

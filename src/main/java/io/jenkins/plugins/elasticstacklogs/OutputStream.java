@@ -53,7 +53,8 @@ public class OutputStream extends LineTransformationOutputStream {
     try {
       if (writeOnInput(JSONObject.fromObject(data).toString())) {
         LOGGER.log(Level.FINER, "scheduled event @{0} from {1}/{2}#{3}",
-                   new Object[] { now, buildInfo.toString(), nodeId });
+                   new Object[] { now, buildInfo.toString(), nodeId }
+                  );
       } else {
         LOGGER.warning("Message buffer full, giving up");
       }

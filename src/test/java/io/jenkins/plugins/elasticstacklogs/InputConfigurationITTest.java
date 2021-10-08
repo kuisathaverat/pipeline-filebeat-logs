@@ -55,10 +55,12 @@ public class InputConfigurationITTest {
   @Test
   public void testDoValidate() throws IOException {
     assertEquals(inputConfiguration.doValidate(CRED_ID, esContainer.getUrl(), INDEX_PATTERN).kind,
-                 FormValidation.Kind.OK);
+                 FormValidation.Kind.OK
+                );
 
     assertEquals(inputConfiguration.doValidate(CRED_ID, esContainer.getUrl(), "pattern").kind,
-                 FormValidation.Kind.ERROR);
+                 FormValidation.Kind.ERROR
+                );
     assertEquals(inputConfiguration.doValidate(CRED_ID, esContainer.getUrl(), "").kind, FormValidation.Kind.ERROR);
 
     assertEquals(inputConfiguration.doValidate(CRED_ID, "", "pattern").kind, FormValidation.Kind.ERROR);

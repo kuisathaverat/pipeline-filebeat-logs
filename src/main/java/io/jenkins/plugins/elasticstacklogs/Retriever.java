@@ -61,7 +61,8 @@ public class Retriever {
     UsernamePasswordCredentials creds = ElasticStackConfiguration.get().getCredentials();
     io.jenkins.plugins.elasticstacklogs.log.Retriever retriever = new io.jenkins.plugins.elasticstacklogs.log.Retriever(
       ElasticStackConfiguration.get().getElasticsearchUrl(), creds.getUsername(), creds.getPassword().getPlainText(),
-      InputConfiguration.get().getIndexPattern());
+      InputConfiguration.get().getIndexPattern()
+    );
     try (Writer w = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
       SearchResponse searchResponse = retriever.search(buildInfo.getKey(), nodeId);
       String scrollId = searchResponse.getScrollId();

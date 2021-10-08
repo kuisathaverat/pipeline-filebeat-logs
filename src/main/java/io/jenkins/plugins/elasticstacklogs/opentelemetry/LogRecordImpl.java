@@ -63,8 +63,8 @@ public class LogRecordImpl extends LogRecord {
   @Override
   public Attributes getAttributes() {
     AttributesBuilderImpl builder = new AttributesBuilderImpl();
-    record.getAttributesList().stream().forEach(
-      i -> builder.put(AttributeKey.stringKey(i.getKey()), i.getValue().getStringValue()));
+    record.getAttributesList().stream()
+          .forEach(i -> builder.put(AttributeKey.stringKey(i.getKey()), i.getValue().getStringValue()));
     return builder.build();
   }
 }
