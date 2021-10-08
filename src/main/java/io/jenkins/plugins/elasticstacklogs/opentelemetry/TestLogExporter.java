@@ -5,6 +5,10 @@
 
 package io.jenkins.plugins.elasticstacklogs.opentelemetry;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.logging.Logger;
+import javax.annotation.Nullable;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
@@ -15,11 +19,6 @@ import io.opentelemetry.proto.logs.v1.ResourceLogs;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.logging.data.LogRecord;
 import io.opentelemetry.sdk.logging.export.LogExporter;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.logging.Logger;
 
 public class TestLogExporter implements LogExporter {
   private static final Logger LOGGER = Logger.getLogger(TestLogExporter.class.getName());
@@ -47,10 +46,12 @@ public class TestLogExporter implements LogExporter {
     }
     try {
       LogRecordConverter converter = new LogRecordConverter();
-      InstrumentationLibraryLogs.Builder instrumentationLibraryLogs = InstrumentationLibraryLogs.newBuilder().addAllLogs(
-        converter.createFromEntities(this.records));
-      ResourceLogs resourceLogs =
-        ResourceLogs.newBuilder().addInstrumentationLibraryLogs(instrumentationLibraryLogs).build();
+      InstrumentationLibraryLogs.Builder instrumentationLibraryLogs = InstrumentationLibraryLogs.newBuilder()
+                                                                                                .addAllLogs(
+                                                                                                  converter.createFromEntities(
+                                                                                                    this.records));
+      ResourceLogs resourceLogs = ResourceLogs.newBuilder().addInstrumentationLibraryLogs(instrumentationLibraryLogs)
+                                              .build();
       ExportLogsServiceRequest request = ExportLogsServiceRequest.newBuilder().addResourceLogs(resourceLogs).build();
       ExportLogsServiceResponse response = blockingStub.export(request);
       //asyncStub.export(request, responseObserver);

@@ -5,10 +5,9 @@
 
 package io.jenkins.plugins.elasticstacklogs.config;
 
+import java.util.logging.Logger;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.GlobalConfigurationCategory;
-
-import java.util.logging.Logger;
 
 public abstract class AbstractElasticStackGlobalConfiguration extends GlobalConfiguration {
 

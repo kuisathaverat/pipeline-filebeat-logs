@@ -1,19 +1,17 @@
 package io.jenkins.plugins.elasticstacklogs.config;
 
-
-import hudson.model.Describable;
-import hudson.model.Descriptor;
-import hudson.util.FormValidation;
-import io.jenkins.plugins.elasticstacklogs.input.Input;
-import jenkins.model.Jenkins;
-import org.apache.commons.lang.StringUtils;
-import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.interceptor.RequirePOST;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import io.jenkins.plugins.elasticstacklogs.input.Input;
+import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.interceptor.RequirePOST;
+import hudson.model.Describable;
+import hudson.model.Descriptor;
+import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
 
 /**
  * Interface for configure inputs.
@@ -53,7 +51,7 @@ public abstract class InputConf implements Describable<InputConf>, Serializable 
         }
         return FormValidation.ok();
       } catch (NumberFormatException e) {
-        return FormValidation.error(e,"the port must be a number.");
+        return FormValidation.error(e, "the port must be a number.");
       }
     }
 

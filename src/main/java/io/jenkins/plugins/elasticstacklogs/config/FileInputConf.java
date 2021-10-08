@@ -4,17 +4,15 @@
  */
 package io.jenkins.plugins.elasticstacklogs.config;
 
+import java.io.IOException;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import hudson.Extension;
 import io.jenkins.plugins.elasticstacklogs.input.FileInput;
 import io.jenkins.plugins.elasticstacklogs.input.Input;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
-
-import java.io.IOException;
-
+import hudson.Extension;
 
 /**
  * Configuration for the log input of filebeat.
@@ -46,9 +44,11 @@ public class FileInputConf extends InputConf {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
+    if (this == o)
+      return true;
 
-    if (o == null || getClass() != o.getClass()) return false;
+    if (o == null || getClass() != o.getClass())
+      return false;
 
     FileInputConf that = (FileInputConf) o;
 
@@ -62,9 +62,7 @@ public class FileInputConf extends InputConf {
 
   @Override
   public String toString() {
-    return "FileInputConf{" +
-      "filePath='" + filePath + '\'' +
-      '}';
+    return "FileInputConf{" + "filePath='" + filePath + '\'' + '}';
   }
 
   @Symbol("fileInput")

@@ -4,15 +4,14 @@
  */
 package io.jenkins.plugins.elasticstacklogs.input;
 
+import java.io.IOException;
+import java.util.logging.Logger;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.grpc.ManagedChannelBuilder;
 import io.jenkins.plugins.elasticstacklogs.opentelemetry.TestLogExporter;
 import io.opentelemetry.sdk.logging.data.LogRecord;
 import io.opentelemetry.sdk.logging.export.BatchLogProcessor;
 import org.kohsuke.stapler.DataBoundConstructor;
-
-import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * This input send the log records to an OpenTelemetry service with support for logs.
@@ -48,11 +47,8 @@ public class OpentelemetryLogsInput extends Input {
       exporter = new TestLogExporter(ManagedChannelBuilder.forAddress(host, port).usePlaintext());
     }
     exporter.setOnCall(() -> LOGGER.info("Batch Log processed"));
-    processor = BatchLogProcessor.builder(exporter)
-      .setMaxExportBatchSize(BATCH_SIZE)
-      .setMaxQueueSize(MAX_QUEUE_SIZE)
-      .setScheduleDelayMillis(SCHEDULE_DELAY_MILLIS)
-      .build();
+    processor = BatchLogProcessor.builder(exporter).setMaxExportBatchSize(BATCH_SIZE).setMaxQueueSize(MAX_QUEUE_SIZE)
+                                 .setScheduleDelayMillis(SCHEDULE_DELAY_MILLIS).build();
   }
 
   private static int getEndpointPort(@NonNull String endpoint) {

@@ -4,22 +4,14 @@
  */
 package io.jenkins.plugins.elasticstacklogs.config;
 
-import com.cloudbees.plugins.credentials.Credentials;
-import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
-import com.cloudbees.plugins.credentials.common.IdCredentials;
-import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
-import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
-import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import javax.annotation.Nonnull;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import hudson.Extension;
-import hudson.ExtensionList;
-import hudson.Util;
-import hudson.model.Item;
-import hudson.security.ACL;
-import hudson.util.FormValidation;
-import hudson.util.ListBoxModel;
-import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
@@ -36,13 +28,20 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.interceptor.RequirePOST;
-
-import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import hudson.Extension;
+import hudson.ExtensionList;
+import hudson.Util;
+import hudson.model.Item;
+import hudson.security.ACL;
+import hudson.util.FormValidation;
+import hudson.util.ListBoxModel;
+import jenkins.model.Jenkins;
+import com.cloudbees.plugins.credentials.Credentials;
+import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
+import com.cloudbees.plugins.credentials.common.IdCredentials;
+import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
+import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 
 /**
  * Stores the configuration of the Elastic Stack.
@@ -115,13 +114,13 @@ public class ElasticStackConfiguration extends AbstractElasticStackGlobalConfigu
 
   @NonNull
   public UsernamePasswordCredentials getCredentials(String credentialsId) throws NoSuchElementException {
-    Optional<Credentials> optionalCredentials = SystemCredentialsProvider.getInstance()
-      .getCredentials()
-      .stream()
-      .filter(credentials ->
-        (credentials instanceof UsernamePasswordCredentials)
-          && ((IdCredentials) credentials).getId().equals(credentialsId))
-      .findAny();
+    Optional<Credentials> optionalCredentials = SystemCredentialsProvider.getInstance().getCredentials().stream()
+                                                                         .filter(credentials ->
+                                                                                   (credentials instanceof UsernamePasswordCredentials)
+                                                                                   && ((IdCredentials) credentials).getId()
+                                                                                                                   .equals(
+                                                                                                                     credentialsId))
+                                                                         .findAny();
     return (UsernamePasswordCredentials) optionalCredentials.get();
   }
 
@@ -148,7 +147,6 @@ public class ElasticStackConfiguration extends AbstractElasticStackGlobalConfigu
     return FormValidation.ok();
   }
 
-
   @RequirePOST
   public FormValidation doCheckElasticsearchUrl(@QueryParameter("elasticsearchUrl") String url) {
     if (StringUtils.isEmpty(url)) {
@@ -163,23 +161,21 @@ public class ElasticStackConfiguration extends AbstractElasticStackGlobalConfigu
   }
 
   @RequirePOST
-  public ListBoxModel doFillCredentialsIdItems(Item context,
-                                               @QueryParameter String credentialsId) {
-    if (context == null && !Jenkins.get().hasPermission(Jenkins.ADMINISTER) ||
-      context != null && !context.hasPermission(context.CONFIGURE)) {
+  public ListBoxModel doFillCredentialsIdItems(Item context, @QueryParameter String credentialsId) {
+    if (context == null && !Jenkins.get().hasPermission(Jenkins.ADMINISTER)
+        || context != null && !context.hasPermission(context.CONFIGURE)) {
       return new StandardListBoxModel();
     }
 
-    return new StandardListBoxModel().includeEmptyValue()
-      .includeAs(ACL.SYSTEM, context, StandardUsernameCredentials.class)
-      .includeCurrentValue(credentialsId);
+    return new StandardListBoxModel().includeEmptyValue().includeAs(ACL.SYSTEM, context,
+                                                                    StandardUsernameCredentials.class)
+                                     .includeCurrentValue(credentialsId);
   }
 
   @RequirePOST
-  public FormValidation doCheckCredentialsId(Item context,
-                                             @QueryParameter String credentialsId) {
-    if (context == null && !Jenkins.get().hasPermission(Jenkins.ADMINISTER) ||
-      context != null && !context.hasPermission(context.CONFIGURE)) {
+  public FormValidation doCheckCredentialsId(Item context, @QueryParameter String credentialsId) {
+    if (context == null && !Jenkins.get().hasPermission(Jenkins.ADMINISTER)
+        || context != null && !context.hasPermission(context.CONFIGURE)) {
       return FormValidation.ok();
     }
 
@@ -201,14 +197,13 @@ public class ElasticStackConfiguration extends AbstractElasticStackGlobalConfigu
     try {
       UsernamePasswordCredentials jenkinsCredentials = getCredentials(credentialsId);
       BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-      org.apache.http.auth.UsernamePasswordCredentials credentials =
-        new org.apache.http.auth.UsernamePasswordCredentials(jenkinsCredentials.getUsername(),
-          jenkinsCredentials.getPassword().getPlainText());
+      org.apache.http.auth.UsernamePasswordCredentials credentials = new org.apache.http.auth.UsernamePasswordCredentials(
+        jenkinsCredentials.getUsername(), jenkinsCredentials.getPassword().getPlainText());
       credentialsProvider.setCredentials(AuthScope.ANY, credentials);
 
       RestClientBuilder builder = RestClient.builder(HttpHost.create(elasticsearchUrl));
-      builder.setHttpClientConfigCallback(httpClientBuilder ->
-        httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+      builder.setHttpClientConfigCallback(
+        httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
 
       try (RestHighLevelClient client = new RestHighLevelClient(builder)) {
         MainResponse response = client.info(RequestOptions.DEFAULT);
@@ -230,10 +225,7 @@ public class ElasticStackConfiguration extends AbstractElasticStackGlobalConfigu
 
   @Override
   public String toString() {
-    return "ElasticStackConfiguration{" +
-      "kibanaUrl='" + kibanaUrl + '\'' +
-      ", elasticsearchUrl='" + elasticsearchUrl + '\'' +
-      ", credentialsId='" + credentialsId + '\'' +
-      '}';
+    return "ElasticStackConfiguration{" + "kibanaUrl='" + kibanaUrl + '\'' + ", elasticsearchUrl='" + elasticsearchUrl
+           + '\'' + ", credentialsId='" + credentialsId + '\'' + '}';
   }
 }

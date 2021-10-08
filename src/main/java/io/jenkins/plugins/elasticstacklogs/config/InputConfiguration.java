@@ -4,12 +4,13 @@
  */
 package io.jenkins.plugins.elasticstacklogs.config;
 
-import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import javax.annotation.Nonnull;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import hudson.Extension;
-import hudson.ExtensionList;
-import hudson.util.FormValidation;
 import io.jenkins.plugins.elasticstacklogs.log.Retriever;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -19,12 +20,10 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.interceptor.RequirePOST;
-
-import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
+import hudson.Extension;
+import hudson.ExtensionList;
+import hudson.util.FormValidation;
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 
 /**
  * Stores the configuration of the Inputs.
@@ -96,20 +95,18 @@ public class InputConfiguration extends AbstractElasticStackGlobalConfiguration 
   }
 
   @RequirePOST
-  public FormValidation doValidate(@QueryParameter String credentialsId,
-                                   @QueryParameter String elasticsearchUrl, @QueryParameter String indexPattern) {
-    FormValidation elasticsearchUrlValidation =
-      ElasticStackConfiguration.get().doCheckElasticsearchUrl(elasticsearchUrl);
+  public FormValidation doValidate(@QueryParameter String credentialsId, @QueryParameter String elasticsearchUrl,
+                                   @QueryParameter String indexPattern) {
+    FormValidation elasticsearchUrlValidation = ElasticStackConfiguration.get().doCheckElasticsearchUrl(
+      elasticsearchUrl);
     if (elasticsearchUrlValidation.kind != FormValidation.Kind.OK) {
       return elasticsearchUrlValidation;
     }
 
     try {
       UsernamePasswordCredentials jenkinsCredentials = ElasticStackConfiguration.get().getCredentials(credentialsId);
-      Retriever retriever = new Retriever(
-        elasticsearchUrl,
-        jenkinsCredentials.getUsername(), jenkinsCredentials.getPassword().getPlainText(),
-        indexPattern);
+      Retriever retriever = new Retriever(elasticsearchUrl, jenkinsCredentials.getUsername(),
+                                          jenkinsCredentials.getPassword().getPlainText(), indexPattern);
       if (retriever.indexExists()) {
         return FormValidation.ok("success");
       }
@@ -127,9 +124,7 @@ public class InputConfiguration extends AbstractElasticStackGlobalConfiguration 
 
   @Override
   public String toString() {
-    return "InputConfiguration{" +
-      ", input='" + (input != null ? input.getClass().getName() : "None") + '\'' +
-      ", indexPattern='" + (indexPattern != null ? indexPattern : "None") + '\'' +
-      '}';
+    return "InputConfiguration{" + ", input='" + (input != null ? input.getClass().getName() : "None") + '\''
+           + ", indexPattern='" + (indexPattern != null ? indexPattern : "None") + '\'' + '}';
   }
 }

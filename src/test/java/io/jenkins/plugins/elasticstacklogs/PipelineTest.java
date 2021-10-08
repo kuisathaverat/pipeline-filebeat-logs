@@ -4,9 +4,7 @@
  */
 package io.jenkins.plugins.elasticstacklogs;
 
-import com.cloudbees.plugins.credentials.CredentialsScope;
-import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
-import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
+import java.io.File;
 import io.jenkins.plugins.elasticstacklogs.config.ElasticStackConfiguration;
 import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
 import io.jenkins.plugins.elasticstacklogs.config.TCPInputConf;
@@ -16,21 +14,25 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.DockerComposeContainer;
-
-import java.io.File;
-
+import com.cloudbees.plugins.credentials.CredentialsScope;
+import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
+import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import static org.junit.Assume.assumeTrue;
 
 public class PipelineTest {
 
   public static final String CRED_ID = "credID";
   @ClassRule
-  public static DockerComposeContainer environment =
-    new DockerComposeContainer(new File("src/test/resources/docker-compose.yml"));
+  public static DockerComposeContainer environment = new DockerComposeContainer(
+    new File("src/test/resources/docker-compose.yml"));
   @Rule
   public JenkinsRule r = new JenkinsRule();
   private ElasticStackConfiguration elasticStackConfiguration;
@@ -46,34 +48,24 @@ public class PipelineTest {
   public void setUp() throws Exception {
     elasticStackConfiguration = ElasticStackConfiguration.get();
     inputConfiguration = InputConfiguration.get();
-    SystemCredentialsProvider.getInstance()
-      .getCredentials()
-      .add(new UsernamePasswordCredentialsImpl(
-        CredentialsScope.GLOBAL,
-        CRED_ID, "",
-        ElasticsearchContainer.USER_NAME, ElasticsearchContainer.PASSWORD));
+    SystemCredentialsProvider.getInstance().getCredentials().add(
+      new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, CRED_ID, "", ElasticsearchContainer.USER_NAME,
+                                          ElasticsearchContainer.PASSWORD));
     inputConfiguration.setInput(new TCPInputConf("localhost", 9000));
     elasticStackConfiguration.setElasticsearchUrl("http://localhost:9200");
     elasticStackConfiguration.setKibanaUrl("http://localhost:5601");
     elasticStackConfiguration.setCredentialsId(CRED_ID);
     inputConfiguration.setIndexPattern(ElasticsearchContainer.INDEX_PATTERN);
 
-    retriever = new Retriever(
-      ElasticStackConfiguration.get().getElasticsearchUrl(),
-      ElasticsearchContainer.USER_NAME,
-      ElasticsearchContainer.PASSWORD,
-      InputConfiguration.get().getIndexPattern()
-    );
+    retriever = new Retriever(ElasticStackConfiguration.get().getElasticsearchUrl(), ElasticsearchContainer.USER_NAME,
+                              ElasticsearchContainer.PASSWORD, InputConfiguration.get().getIndexPattern());
   }
 
   @Test
   public void test() throws Exception {
     r.createSlave("remote", null, null);
     WorkflowJob p = r.jenkins.createProject(WorkflowJob.class, "p");
-    p.setDefinition(new CpsFlowDefinition(
-      "node('remote') {\n" +
-        "  echo 'Hello'\n" +
-        "}", true));
+    p.setDefinition(new CpsFlowDefinition("node('remote') {\n" + "  echo 'Hello'\n" + "}", true));
     WorkflowRun run = r.buildAndAssertSuccess(p);
     waitForLogs(run);
     r.assertLogContains("Hello", run);

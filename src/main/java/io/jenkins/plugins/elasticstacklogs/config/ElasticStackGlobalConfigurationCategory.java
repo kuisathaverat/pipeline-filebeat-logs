@@ -4,9 +4,9 @@
  */
 package io.jenkins.plugins.elasticstacklogs.config;
 
+import org.jenkinsci.Symbol;
 import hudson.Extension;
 import jenkins.model.GlobalConfigurationCategory;
-import org.jenkinsci.Symbol;
 
 /**
  * Category to group Elastic Stack configurations.

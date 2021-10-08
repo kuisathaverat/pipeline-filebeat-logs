@@ -4,9 +4,8 @@
  */
 package io.jenkins.plugins.elasticstacklogs.input;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 import java.io.IOException;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Interface for implement log inputs.

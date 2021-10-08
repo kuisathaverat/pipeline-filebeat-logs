@@ -4,27 +4,25 @@
  */
 package io.jenkins.plugins.elasticstacklogs;
 
-import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import hudson.console.AnnotatedLargeText;
-import io.jenkins.plugins.elasticstacklogs.config.ElasticStackConfiguration;
-import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
-import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.SearchHit;
-import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
-import org.jenkinsci.plugins.workflow.graph.FlowNode;
-import org.kohsuke.stapler.framework.io.ByteBuffer;
-
-import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
+import javax.annotation.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jenkins.plugins.elasticstacklogs.config.ElasticStackConfiguration;
+import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
+import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
+import net.sf.json.JSONObject;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
+import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
+import org.jenkinsci.plugins.workflow.graph.FlowNode;
+import org.kohsuke.stapler.framework.io.ByteBuffer;
+import hudson.console.AnnotatedLargeText;
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 
 /**
  * Retrieve the logs from Elasticsearch.
@@ -40,7 +38,8 @@ public class Retriever {
     this.buildInfo = buildInfo;
   }
 
-  AnnotatedLargeText<FlowExecutionOwner.Executable> overallLog(FlowExecutionOwner.Executable build, boolean completed) throws IOException, InterruptedException {
+  AnnotatedLargeText<FlowExecutionOwner.Executable> overallLog(FlowExecutionOwner.Executable build, boolean completed)
+    throws IOException, InterruptedException {
     ByteBuffer buf = new ByteBuffer();
     stream(buf, null);
     return new AnnotatedLargeText<>(buf, StandardCharsets.UTF_8, completed, build);
@@ -61,11 +60,8 @@ public class Retriever {
   private void stream(@NonNull OutputStream os, @CheckForNull String nodeId) throws IOException {
     UsernamePasswordCredentials creds = ElasticStackConfiguration.get().getCredentials();
     io.jenkins.plugins.elasticstacklogs.log.Retriever retriever = new io.jenkins.plugins.elasticstacklogs.log.Retriever(
-      ElasticStackConfiguration.get().getElasticsearchUrl(),
-      creds.getUsername(),
-      creds.getPassword().getPlainText(),
-      InputConfiguration.get().getIndexPattern()
-    );
+      ElasticStackConfiguration.get().getElasticsearchUrl(), creds.getUsername(), creds.getPassword().getPlainText(),
+      InputConfiguration.get().getIndexPattern());
     try (Writer w = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
       SearchResponse searchResponse = retriever.search(buildInfo.getKey(), nodeId);
       String scrollId = searchResponse.getScrollId();

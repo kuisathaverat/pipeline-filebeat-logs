@@ -20,9 +20,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.testcontainers.DockerClientFactory;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
@@ -32,16 +30,6 @@ public class OpentelemetryLogsInputTest {
   private static final File workdir = new File("/tmp");
   private Server server;
   private int port;
-
-  private class LogsService extends LogsServiceGrpc.LogsServiceImplBase {
-
-    @Override
-    public void export(ExportLogsServiceRequest request, StreamObserver<ExportLogsServiceResponse> responseObserver) {
-      LOGGER.info("[Server] Log received :" + request.toString());
-      responseObserver.onNext(ExportLogsServiceResponse.newBuilder().build());
-      responseObserver.onCompleted();
-    }
-  }
 
   @BeforeClass
   public static void requiresDocker() {
@@ -54,8 +42,7 @@ public class OpentelemetryLogsInputTest {
       assertTrue(serverSocket.getLocalPort() > 0);
       port = serverSocket.getLocalPort();
     }
-    server = ServerBuilder.forPort(port).addService(new LogsService())
-                          .build();
+    server = ServerBuilder.forPort(port).addService(new LogsService()).build();
     server.start();
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       LOGGER.info("[Server] shutting down gRPC server since JVM is shutting down");
@@ -82,11 +69,21 @@ public class OpentelemetryLogsInputTest {
     input.write("foo");
     Thread.sleep(5000);
     assertEquals(2, input.getCount());
-    for(int i=0; i<20; i++){
+    for (int i = 0; i < 20; i++) {
       input.write("foo");
     }
     Thread.sleep(5000);
     assertEquals(4, input.getCount());
+  }
+
+  private class LogsService extends LogsServiceGrpc.LogsServiceImplBase {
+
+    @Override
+    public void export(ExportLogsServiceRequest request, StreamObserver<ExportLogsServiceResponse> responseObserver) {
+      LOGGER.info("[Server] Log received :" + request.toString());
+      responseObserver.onNext(ExportLogsServiceResponse.newBuilder().build());
+      responseObserver.onCompleted();
+    }
   }
 
 }

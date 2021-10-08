@@ -4,15 +4,14 @@
  */
 package io.jenkins.plugins.elasticstacklogs;
 
-import hudson.model.Run;
+import java.io.IOException;
+import javax.annotation.CheckForNull;
 import io.jenkins.plugins.elasticstacklogs.config.ElasticStackConfiguration;
 import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
 import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
-import jenkins.model.RunAction2;
 import org.apache.commons.lang.StringUtils;
-
-import javax.annotation.CheckForNull;
-import java.io.IOException;
+import hudson.model.Run;
+import jenkins.model.RunAction2;
 
 public class ElasticsearchLogsLinkAction implements RunAction2 {
 
@@ -33,33 +32,16 @@ public class ElasticsearchLogsLinkAction implements RunAction2 {
 
   private String buildLogsURL(@CheckForNull String nodeId) throws IOException {
     String kibanaUrl = ElasticStackConfiguration.get().getKibanaUrl();
-    return kibanaUrl + "/app/logs/stream?" +
-      "flyoutOptions=(" +
-      "flyoutId:!n," +
-      "flyoutVisibility:hidden," +
-      "surroundingLogsId:!n)" +
-      "&logPosition=(" +
-      "end:now," +
-      "start:%27" + buildInfo.getStartTime() + "%27," +
-      "streamLive:!f)" +
-      "&logFilter=(" +
-      "expression:" + buildQuery(nodeId) +
-      ",kind:kuery)&f=1";
+    return kibanaUrl + "/app/logs/stream?" + "flyoutOptions=(" + "flyoutId:!n," + "flyoutVisibility:hidden,"
+           + "surroundingLogsId:!n)" + "&logPosition=(" + "end:now," + "start:%27" + buildInfo.getStartTime() + "%27,"
+           + "streamLive:!f)" + "&logFilter=(" + "expression:" + buildQuery(nodeId) + ",kind:kuery)&f=1";
   }
 
   private String buildDiscoverURL(@CheckForNull String nodeId) throws IOException {
     String kibanaUrl = ElasticStackConfiguration.get().getKibanaUrl();
-    return kibanaUrl + "/app/discover#/?" +
-      "_g=(" +
-      "time:(from:%27" + buildInfo.getStartTime() + "%27,to:now)" +
-      ")" +
-      "&_a=(" +
-      "index:%27" + InputConfiguration.get().getIndexPattern() + "%27," +
-      "query:(" +
-      "language:kuery," +
-      "query:" + buildQuery(nodeId) +
-      ")" +
-      ")&f=1";
+    return kibanaUrl + "/app/discover#/?" + "_g=(" + "time:(from:%27" + buildInfo.getStartTime() + "%27,to:now)" + ")"
+           + "&_a=(" + "index:%27" + InputConfiguration.get().getIndexPattern() + "%27," + "query:(" + "language:kuery,"
+           + "query:" + buildQuery(nodeId) + ")" + ")&f=1";
   }
 
   private String buildQuery(@CheckForNull String nodeId) throws IOException {
@@ -84,7 +66,6 @@ public class ElasticsearchLogsLinkAction implements RunAction2 {
   public String getUrlName() {
     return "elasticsearchlogs";
   }
-
 
   @Override
   public void onAttached(Run<?, ?> r) {

@@ -4,13 +4,12 @@
  */
 package io.jenkins.plugins.elasticstacklogs.input;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import org.kohsuke.stapler.DataBoundConstructor;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * Implementation for the UDP input of filebeat.

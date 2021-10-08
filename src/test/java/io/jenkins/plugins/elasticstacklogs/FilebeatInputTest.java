@@ -4,7 +4,16 @@
  */
 package io.jenkins.plugins.elasticstacklogs;
 
-import io.jenkins.plugins.elasticstacklogs.input.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import io.jenkins.plugins.elasticstacklogs.input.FileInput;
+import io.jenkins.plugins.elasticstacklogs.input.TCPInput;
+import io.jenkins.plugins.elasticstacklogs.input.UDPInput;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -13,16 +22,6 @@ import org.junit.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Duration;
-
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
@@ -31,11 +30,13 @@ public class FilebeatInputTest {
   private static final File workdir = new File("/tmp");
 
   @Rule
-  public GenericContainer filebeatContainer = new GenericContainer("docker.elastic.co/beats/filebeat:7.15.0")
-    .withExposedPorts(9000)
-    .withClasspathResourceMapping("filebeat.yml", "/usr/share/filebeat/filebeat.yml", BindMode.READ_ONLY)
-    .withFileSystemBind(workdir.getAbsolutePath(), "/tmp", BindMode.READ_WRITE)
-    .withCommand("--strict.perms=false");
+  public GenericContainer filebeatContainer = new GenericContainer(
+    "docker.elastic.co/beats/filebeat:7.15.0").withExposedPorts(9000).withClasspathResourceMapping("filebeat.yml",
+                                                                                                   "/usr/share/filebeat/filebeat.yml",
+                                                                                                   BindMode.READ_ONLY)
+                                              .withFileSystemBind(workdir.getAbsolutePath(), "/tmp",
+                                                                  BindMode.READ_WRITE).withCommand(
+      "--strict.perms=false");
 
   @BeforeClass
   public static void requiresDocker() {

@@ -4,8 +4,11 @@
  */
 package io.jenkins.plugins.elasticstacklogs;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.logging.Logger;
 import io.grpc.Server;
-import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.jenkins.plugins.elasticstacklogs.input.OpentelemetryLogsInput;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
@@ -19,41 +22,23 @@ import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 public class OpentelemetryLogsInputCollectorTest {
-  private static final Logger LOGGER = Logger.getLogger(OpentelemetryLogsInputCollectorTest.class.getName());
-
-  private static final File workdir = new File("/tmp");
   public static final int OTEL_PORT = 4317;
-  private Server server;
-
-  private class LogsService extends LogsServiceGrpc.LogsServiceImplBase {
-
-    @Override
-    public void export(ExportLogsServiceRequest request, StreamObserver<ExportLogsServiceResponse> responseObserver) {
-      LOGGER.info("[Server] Log received :" + request.toString());
-      responseObserver.onNext(ExportLogsServiceResponse.newBuilder().build());
-      responseObserver.onCompleted();
-    }
-  }
+  private static final Logger LOGGER = Logger.getLogger(OpentelemetryLogsInputCollectorTest.class.getName());
+  private static final File workdir = new File("/tmp");
   @Rule
-  public GenericContainer otelCollector = new GenericContainer("otel/opentelemetry-collector-dev:latest")
-    .withClasspathResourceMapping("otel-collector.yml", "/otel-collector.yml", BindMode.READ_ONLY)
-    .withFileSystemBind(workdir.getAbsolutePath(), "/tmp", BindMode.READ_WRITE)
-    .withCommand("--config /otel-collector.yml --log-level DEBUG --log-profile dev")
-    .waitingFor(Wait.forLogMessage("^.*Everything is ready.*", 1))
-    .withExposedPorts(OTEL_PORT)
-    .withStartupTimeout(Duration.ofMinutes(1));
+  public GenericContainer otelCollector = new GenericContainer(
+    "otel/opentelemetry-collector-dev:latest").withClasspathResourceMapping("otel-collector.yml", "/otel-collector.yml",
+                                                                            BindMode.READ_ONLY).withFileSystemBind(
+    workdir.getAbsolutePath(), "/tmp", BindMode.READ_WRITE).withCommand(
+    "--config /otel-collector.yml --log-level DEBUG --log-profile dev").waitingFor(
+    Wait.forLogMessage("^.*Everything is ready.*", 1)).withExposedPorts(OTEL_PORT).withStartupTimeout(
+    Duration.ofMinutes(1));
+  private Server server;
 
   @BeforeClass
   public static void requiresDocker() {
@@ -66,7 +51,8 @@ public class OpentelemetryLogsInputCollectorTest {
 
   @Test
   public void testLog() throws IOException, InterruptedException {
-    OpentelemetryLogsInput input = new OpentelemetryLogsInput("grpc://127.0.0.1:" + otelCollector.getMappedPort(OTEL_PORT));
+    OpentelemetryLogsInput input = new OpentelemetryLogsInput(
+      "grpc://127.0.0.1:" + otelCollector.getMappedPort(OTEL_PORT));
     input.write("foo00");
     Thread.sleep(5000);
     assertEquals(1, input.getCount());
@@ -81,14 +67,24 @@ public class OpentelemetryLogsInputCollectorTest {
     assertTrue(otelCollector.getLogs().contains("foo02"));
     assertTrue(otelCollector.getLogs().contains("foo03"));
     assertTrue(otelCollector.getLogs().contains("foo04"));
-    for(int i=0; i<20; i++){
+    for (int i = 0; i < 20; i++) {
       input.write("foo" + i);
     }
     Thread.sleep(5000);
-    for(int i=0; i<20; i++){
+    for (int i = 0; i < 20; i++) {
       assertTrue(otelCollector.getLogs().contains("foo" + i));
     }
     assertEquals(4, input.getCount());
+  }
+
+  private class LogsService extends LogsServiceGrpc.LogsServiceImplBase {
+
+    @Override
+    public void export(ExportLogsServiceRequest request, StreamObserver<ExportLogsServiceResponse> responseObserver) {
+      LOGGER.info("[Server] Log received :" + request.toString());
+      responseObserver.onNext(ExportLogsServiceResponse.newBuilder().build());
+      responseObserver.onCompleted();
+    }
   }
 
 }

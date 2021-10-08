@@ -20,7 +20,7 @@ service:
       exporters:
         - logging
     logs:
-        receivers:
-            - otlp
-        exporters:
-            - logging
+      receivers:
+        - otlp
+      exporters:
+        - logging

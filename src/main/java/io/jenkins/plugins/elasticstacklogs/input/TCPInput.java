@@ -4,12 +4,11 @@
  */
 package io.jenkins.plugins.elasticstacklogs.input;
 
+import java.io.IOException;
+import java.net.Socket;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
-
-import java.io.IOException;
-import java.net.Socket;
 
 /**
  * Implementation for the TCP input of filebeat.

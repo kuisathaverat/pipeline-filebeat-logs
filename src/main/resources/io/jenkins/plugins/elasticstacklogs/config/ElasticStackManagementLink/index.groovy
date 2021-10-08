@@ -7,11 +7,11 @@ package io.jenkins.plugins.elasticstacklogs.config.ElasticStackManagementLink
 import hudson.Functions
 import hudson.model.Descriptor
 
-def f=namespace(lib.FormTagLib)
-def l=namespace(lib.LayoutTagLib)
-def st=namespace("jelly:stapler")
+def f = namespace(lib.FormTagLib)
+def l = namespace(lib.LayoutTagLib)
+def st = namespace("jelly:stapler")
 
-l.layout(norefresh:true, permission:app.ADMINISTER, title:my.displayName, cssclass:request.getParameter('decorate')) {
+l.layout(norefresh: true, permission: app.ADMINISTER, title: my.displayName, cssclass: request.getParameter('decorate')) {
   l.main_panel {
     h1 {
       l.icon(src: "${resURL}/plugin/elastic-stack-logs/images/elastic_stack.png", class: 'icon-xlg')
@@ -19,21 +19,21 @@ l.layout(norefresh:true, permission:app.ADMINISTER, title:my.displayName, csscla
     }
 
     p()
-    div(class:"behavior-loading", _("LOADING"))
-    f.form(method:"post",name:"config",action:"configure") {
-      set("instance",my);
+    div(class: "behavior-loading", _("LOADING"))
+    f.form(method: "post", name: "config", action: "configure") {
+      set("instance", my);
       set("descriptor", my.descriptor);
 
       Functions.getSortedDescriptorsForGlobalConfigByDescriptor(my.FILTER).each { Descriptor descriptor ->
-        set("descriptor",descriptor)
-        set("instance",descriptor)
-        f.rowSet(name:descriptor.jsonSafeClassName) {
-          st.include(from:descriptor, page:descriptor.globalConfigPage)
+        set("descriptor", descriptor)
+        set("instance", descriptor)
+        f.rowSet(name: descriptor.jsonSafeClassName) {
+          st.include(from: descriptor, page: descriptor.globalConfigPage)
         }
       }
 
       f.bottomButtonBar {
-        f.submit(value:_("Save"))
+        f.submit(value: _("Save"))
         f.apply()
       }
     }

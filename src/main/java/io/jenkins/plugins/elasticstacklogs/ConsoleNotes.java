@@ -4,11 +4,6 @@
  */
 package io.jenkins.plugins.elasticstacklogs;
 
-import com.google.common.collect.ImmutableMap;
-import hudson.console.ConsoleNote;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +11,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import com.google.common.collect.ImmutableMap;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import hudson.console.ConsoleNote;
 
 /**
  * Utilities for extracting and reinserting {@link ConsoleNote}s.
@@ -65,7 +64,8 @@ class ConsoleNotes {
           break;
         }
         buf.append(line, pos, preamble);
-        annotations.add(ImmutableMap.of(POSITION_KEY, buf.length(), NOTE_KEY, line.substring(endOfPreamble, postamble)));
+        annotations.add(
+          ImmutableMap.of(POSITION_KEY, buf.length(), NOTE_KEY, line.substring(endOfPreamble, postamble)));
         pos = postamble + ConsoleNote.POSTAMBLE_STR.length();
       }
       buf.append(line, pos, line.length()); // append tail

@@ -4,11 +4,6 @@
  */
 package io.jenkins.plugins.elasticstacklogs.log;
 
-import hudson.model.Run;
-import io.jenkins.plugins.elasticstacklogs.config.InputConf;
-import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
-
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.Instant;
@@ -18,6 +13,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.TimeZone;
+import javax.annotation.Nonnull;
+import io.jenkins.plugins.elasticstacklogs.config.InputConf;
+import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
+import hudson.model.Run;
 
 public class BuildInfo implements Serializable {
 
@@ -100,13 +99,13 @@ public class BuildInfo implements Serializable {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
     BuildInfo buildInfo = (BuildInfo) o;
-    return jobUrl.equals(buildInfo.jobUrl) &&
-      buildId.equals(buildInfo.buildId) &&
-      jobName.equals(buildInfo.jobName) &&
-      input.equals(buildInfo.input);
+    return jobUrl.equals(buildInfo.jobUrl) && buildId.equals(buildInfo.buildId) && jobName.equals(buildInfo.jobName)
+           && input.equals(buildInfo.input);
   }
 
   @Override
@@ -120,11 +119,7 @@ public class BuildInfo implements Serializable {
 
   @Override
   public String toString() {
-    return "BuildInfo{" +
-      "logStreamNameBase='" + jobUrl + '\'' +
-      ", buildId='" + buildId + '\'' +
-      ", jobName='" + jobName + '\'' +
-      ", input='" + input + '\'' +
-      '}';
+    return "BuildInfo{" + "logStreamNameBase='" + jobUrl + '\'' + ", buildId='" + buildId + '\'' + ", jobName='"
+           + jobName + '\'' + ", input='" + input + '\'' + '}';
   }
 }
