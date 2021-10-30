@@ -53,13 +53,23 @@ The OpenTelemetry input require a OpenTelemetry service up and running to connec
 
 ## Index settings
 
+The index settings are used to retrieve the Elasticsearch logs, the index should exists.
+
 ![](docs/images/index_pattern_validation_success.png)
 
 # How to check build logs
 
+There is two ways to check the logs,
+one is the Jenkins Console logs that changes it behaviour to retrieve logs from Elasticsearch instead the from disk,
+and the other that it is to go to Kibana logs or directly in Kibana discover,
+in Kibana we can search for strings and filter our logs.
+To go to the Kibana logs we have a button in the build menu.
+
 ![](docs/images/build_menu.png)
+
+And two links in the build status.
+
 ![](docs/images/build_status.png)
-![]()
 
 # Configuration errors
 
