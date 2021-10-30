@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.util.FormValidation;
 import io.jenkins.plugins.elasticstacklogs.config.ElasticStackConfiguration;
 import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
 import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
@@ -58,11 +59,24 @@ public class Retriever {
    * @param nodeId if defined, limit output to that coming from this node
    */
   private void stream(@NonNull OutputStream os, @CheckForNull String nodeId) throws IOException {
-    UsernamePasswordCredentials creds = ElasticStackConfiguration.get().getCredentials();
+    ElasticStackConfiguration elasticStackConfiguration = ElasticStackConfiguration.get();
+    UsernamePasswordCredentials creds = elasticStackConfiguration.getCredentials();
+    String elasticsearchUrl = elasticStackConfiguration.getElasticsearchUrl();
+    InputConfiguration inputConfiguration = InputConfiguration.get();
+    String indexPattern = inputConfiguration.getIndexPattern();
+    String username = creds.getUsername();
+    String password = creds.getPassword().getPlainText();
     io.jenkins.plugins.elasticstacklogs.log.Retriever retriever = new io.jenkins.plugins.elasticstacklogs.log.Retriever(
-      ElasticStackConfiguration.get().getElasticsearchUrl(), creds.getUsername(), creds.getPassword().getPlainText(),
-      InputConfiguration.get().getIndexPattern()
+      elasticsearchUrl, username, password,
+      indexPattern
     );
+    if(!retriever.indexExists()){
+      try (Writer w = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
+        w.write("The index pattern configured does not exists\n");
+        w.flush();
+      }
+      return;
+    }
     try (Writer w = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
       SearchResponse searchResponse = retriever.search(buildInfo.getKey(), nodeId);
       String scrollId = searchResponse.getScrollId();
