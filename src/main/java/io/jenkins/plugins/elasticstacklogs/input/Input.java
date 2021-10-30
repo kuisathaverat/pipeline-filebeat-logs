@@ -4,14 +4,13 @@
  */
 package io.jenkins.plugins.elasticstacklogs.input;
 
+import java.io.IOException;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
-import java.io.IOException;
-
 /**
- * Interface for access to Filebeat inputs.
+ * Interface for implement log inputs.
  */
-public interface Input {
+public abstract class Input {
 
   /**
    * Writes a string in the Filebeat input.
@@ -20,5 +19,6 @@ public interface Input {
    * @return true it success.
    * @throws IOException
    */
-  boolean write(@NonNull String value) throws IOException;
+  public abstract boolean write(@NonNull String value) throws IOException;
+
 }

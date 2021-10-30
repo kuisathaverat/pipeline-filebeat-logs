@@ -4,20 +4,21 @@
  */
 package io.jenkins.plugins.elasticstacklogs.input;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import org.apache.commons.io.FileUtils;
-
 import java.io.IOException;
 import java.nio.file.Paths;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import org.apache.commons.io.FileUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * Implementation for the log input of filebeat.
  */
-public class FileInput implements Input {
+public class FileInput extends Input {
 
   @NonNull
   private final String filePath;
 
+  @DataBoundConstructor
   public FileInput(@NonNull String filePath) {
     this.filePath = filePath;
   }

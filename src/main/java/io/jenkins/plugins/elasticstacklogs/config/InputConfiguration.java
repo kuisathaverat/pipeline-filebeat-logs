@@ -5,7 +5,6 @@
 package io.jenkins.plugins.elasticstacklogs.config;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -23,7 +22,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import hudson.Extension;
 import hudson.ExtensionList;
-import hudson.Util;
 import hudson.util.FormValidation;
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 
@@ -36,9 +34,9 @@ public class InputConfiguration extends AbstractElasticStackGlobalConfiguration 
   private static final List<String> validSchemas = Arrays.asList("tcp", "udp", "file", "otel");
 
   @CheckForNull
-  private String input;
+  private InputConf input;
   @CheckForNull
-  private String indexPattern = "filebeat-*";
+  private String indexPattern = "logs-*";
 
   @DataBoundConstructor
   public InputConfiguration() {
@@ -66,17 +64,16 @@ public class InputConfiguration extends AbstractElasticStackGlobalConfiguration 
   @NonNull
   @Override
   public String getDisplayName() {
-    return "Filebeat Logs settings";
+    return "Logs settings";
   }
 
   @CheckForNull
-  public String getInput() {
+  public InputConf getInput() {
     return input;
   }
 
-  @DataBoundSetter
-  public void setInput(String input) {
-    this.input = Util.fixNull(input);
+  public void setInput(@CheckForNull InputConf input) {
+    this.input = input;
   }
 
   @CheckForNull
@@ -90,41 +87,28 @@ public class InputConfiguration extends AbstractElasticStackGlobalConfiguration 
   }
 
   @RequirePOST
-  public FormValidation doCheckInput(@QueryParameter("input") String uri) {
-    if (StringUtils.isEmpty(uri)) {
-      return FormValidation.warning("The Filebeat input is required.");
-    }
-    URI checkUri = URI.create(uri);
-    if (validSchemas.contains(checkUri.getScheme())) {
-      return FormValidation.ok();
-    }
-
-    return FormValidation.error("The Filebeat input URI is not valid.");
-  }
-
-  @RequirePOST
   public FormValidation doCheckIndexPattern(@QueryParameter String indexPattern) {
     if (StringUtils.isEmpty(indexPattern)) {
-      return FormValidation.warning("The Filebeat index pattern is required.");
+      return FormValidation.warning("The index pattern is required.");
     }
     return FormValidation.ok();
   }
 
   @RequirePOST
-  public FormValidation doValidate(@QueryParameter String credentialsId,
-                                   @QueryParameter String elasticsearchUrl, @QueryParameter String indexPattern) {
-    FormValidation elasticsearchUrlValidation =
-      ElasticStackConfiguration.get().doCheckElasticsearchUrl(elasticsearchUrl);
-    if(elasticsearchUrlValidation.kind != FormValidation.Kind.OK){
+  public FormValidation doValidate(
+    @QueryParameter String credentialsId, @QueryParameter String elasticsearchUrl,
+    @QueryParameter String indexPattern) {
+    FormValidation elasticsearchUrlValidation = ElasticStackConfiguration.get()
+                                                                         .doCheckElasticsearchUrl(elasticsearchUrl);
+    if (elasticsearchUrlValidation.kind != FormValidation.Kind.OK) {
       return elasticsearchUrlValidation;
     }
 
     try {
       UsernamePasswordCredentials jenkinsCredentials = ElasticStackConfiguration.get().getCredentials(credentialsId);
-      Retriever retriever = new Retriever(
-        elasticsearchUrl,
-        jenkinsCredentials.getUsername(), jenkinsCredentials.getPassword().getPlainText(),
-        indexPattern);
+      Retriever retriever = new Retriever(elasticsearchUrl, jenkinsCredentials.getUsername(),
+                                          jenkinsCredentials.getPassword().getPlainText(), indexPattern
+      );
       if (retriever.indexExists()) {
         return FormValidation.ok("success");
       }
@@ -142,9 +126,7 @@ public class InputConfiguration extends AbstractElasticStackGlobalConfiguration 
 
   @Override
   public String toString() {
-    return "FilebeatConfiguration{" +
-      ", input='" + input + '\'' +
-      ", indexPattern='" + indexPattern + '\'' +
-      '}';
+    return "InputConfiguration{" + ", input='" + (input != null ? input.getClass().getName() : "None") + '\''
+           + ", indexPattern='" + (indexPattern != null ? indexPattern : "None") + '\'' + '}';
   }
 }

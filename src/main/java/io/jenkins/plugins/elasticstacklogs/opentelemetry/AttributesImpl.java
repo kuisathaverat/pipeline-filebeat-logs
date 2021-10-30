@@ -4,13 +4,12 @@
  */
 package io.jenkins.plugins.elasticstacklogs.opentelemetry;
 
-import io.opentelemetry.api.common.AttributeKey;
-import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.common.AttributesBuilder;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.common.AttributesBuilder;
 
 public class AttributesImpl implements Attributes {
   private final Map<AttributeKey<?>, Object> map = new HashMap<>();

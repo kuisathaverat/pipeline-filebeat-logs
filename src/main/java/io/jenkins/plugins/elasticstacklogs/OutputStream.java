@@ -4,22 +4,19 @@
  */
 package io.jenkins.plugins.elasticstacklogs;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import hudson.console.LineTransformationOutputStream;
-import io.jenkins.plugins.elasticstacklogs.input.Input;
-import io.jenkins.plugins.elasticstacklogs.input.InputFactory;
-import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
-import io.jenkins.plugins.elasticstacklogs.log.Retriever;
-import net.sf.json.JSONObject;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jenkins.plugins.elasticstacklogs.input.Input;
+import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
+import io.jenkins.plugins.elasticstacklogs.log.Retriever;
+import net.sf.json.JSONObject;
+import hudson.console.LineTransformationOutputStream;
 
 /**
  * Process the output stream and send it to Filebeat.
@@ -33,10 +30,11 @@ public class OutputStream extends LineTransformationOutputStream {
   @CheckForNull
   private Input input;
 
-  public OutputStream(@Nonnull BuildInfo buildInfo, @CheckForNull String nodeId) throws URISyntaxException {
+  public OutputStream(@Nonnull BuildInfo buildInfo, @CheckForNull String nodeId)
+    throws URISyntaxException, IOException {
     this.buildInfo = buildInfo;
     this.nodeId = nodeId;
-    input = InputFactory.createInput(new URI(buildInfo.getInput()));
+    input = buildInfo.getInput().get();
   }
 
   @Override
@@ -54,7 +52,9 @@ public class OutputStream extends LineTransformationOutputStream {
     //TODO add Otel data trace_id=%X{trace_id} span_id=%X{span_id} trace_flags=%X{trace_flags}
     try {
       if (writeOnInput(JSONObject.fromObject(data).toString())) {
-        LOGGER.log(Level.FINER, "scheduled event @{0} from {1}/{2}#{3}", new Object[]{now, buildInfo.toString(), nodeId});
+        LOGGER.log(Level.FINER, "scheduled event @{0} from {1}/{2}#{3}",
+                   new Object[] { now, buildInfo.toString(), nodeId }
+                  );
       } else {
         LOGGER.warning("Message buffer full, giving up");
       }

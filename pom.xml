@@ -15,12 +15,11 @@
   <properties>
     <revision>0.3.0</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.289.2</jenkins.version>
-    <java.level>11</java.level>
+    <jenkins.version>2.289.3</jenkins.version>
+    <!-- change it to 11 causes errors in the ManagementLink validation URLs -->
+    <java.level>8</java.level>
     <useBeta>true</useBeta>
-    <elasticstack.version>7.13.2</elasticstack.version>
-    <ecs-logging-java.version>1.0.1</ecs-logging-java.version>
-    <elastic-apm-agent.version>1.23.0</elastic-apm-agent.version>
+    <elasticstack.version>7.15.0</elasticstack.version>
   </properties>
   <name>Elastic Stack logs Plugin</name>
   <licenses>
@@ -83,7 +82,7 @@
       <dependency>
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
-        <version>1.27</version>
+        <version>1.29</version>
       </dependency>
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
@@ -108,7 +107,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>2.12.3</version>
+        <version>2.12.4</version>
       </dependency>
       <dependency>
         <groupId>io.jenkins.plugins</groupId>
@@ -167,6 +166,7 @@
     <dependency> <!-- see maskClasses config -->
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
+      <!-- check https://issues.jenkins.io/browse/JENKINS-65988 before change it -->
       <!--
       java.lang.NoSuchMethodError: 'void com.google.common.base.Preconditions.checkArgument(boolean, java.lang.String, char, java.lang.Object)'
       -->
@@ -177,24 +177,10 @@
       <artifactId>auto-value-annotations</artifactId>
       <version>1.8.1</version>
     </dependency>
-    <!--
-    <dependency>
-      <groupId>co.elastic.logging</groupId>
-      <artifactId>jul-ecs-formatter</artifactId>
-      <version>${ecs-logging-java.version}</version>
-    </dependency>
-    -->
-    <!--
-    <dependency>
-      <groupId>co.elastic.apm</groupId>
-      <artifactId>elastic-apm-agent</artifactId>
-      <version>${elastic-apm-agent.version}</version>
-    </dependency>
-    -->
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>jackson2-api</artifactId>
-      <version>2.12.4-1</version>
+      <version>2.12.4</version>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
@@ -215,7 +201,7 @@
         <groupId>org.jenkins-ci.tools</groupId>
         <artifactId>maven-hpi-plugin</artifactId>
         <configuration>
-          <minimumJavaVersion>${java.level}</minimumJavaVersion>
+          <minimumJavaVersion>8</minimumJavaVersion>
           <!-- The AWS SDK plugin contains some Elasticsearch classes that conflits with this plugin -->
           <pluginFirstClassLoader>true</pluginFirstClassLoader>
           <loggers>

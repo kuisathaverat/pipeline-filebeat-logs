@@ -4,12 +4,11 @@
  */
 package io.jenkins.plugins.elasticstacklogs.opentelemetry;
 
+import java.util.HashMap;
+import java.util.Map;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.common.AttributesBuilder;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class AttributesBuilderImpl implements AttributesBuilder {
   private Map<AttributeKey<?>, Object> data = new HashMap<>();
@@ -40,7 +39,7 @@ public class AttributesBuilderImpl implements AttributesBuilder {
 
   @Override
   public AttributesBuilder putAll(Attributes attributes) {
-    attributes.forEach( (k,v) -> data.put(k,v));
+    attributes.forEach((k, v) -> data.put(k, v));
     return this;
   }
 }

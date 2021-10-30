@@ -51,7 +51,7 @@ public class ElasticStackManagementLink extends ManagementLink implements Descri
 
   @Override
   public String getIconFileName() {
-    return "/plugin/pipeline-filebeat-logs/images/elastic_stack.png";
+    return "/plugin/elastic-stack-logs/images/elastic_stack.png";
   }
 
   @Override
@@ -66,7 +66,7 @@ public class ElasticStackManagementLink extends ManagementLink implements Descri
 
   @Override
   public Descriptor<ElasticStackManagementLink> getDescriptor() {
-    return Jenkins.get().getDescriptorOrDie(ElasticStackManagementLink.class);
+    return Jenkins.get().getDescriptorOrDie(getClass());
   }
 
   @POST
@@ -87,6 +87,7 @@ public class ElasticStackManagementLink extends ManagementLink implements Descri
 
   public boolean configure(StaplerRequest req, JSONObject json) throws Descriptor.FormException {
     boolean result = true;
+    Jenkins.get().checkPermission(Jenkins.ADMINISTER);
     for (Descriptor<?> d : Functions.getSortedDescriptorsForGlobalConfigByDescriptor(FILTER)) {
       result &= configureDescriptor(req, json, d);
     }

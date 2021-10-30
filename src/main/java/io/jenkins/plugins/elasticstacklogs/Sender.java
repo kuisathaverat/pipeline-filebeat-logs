@@ -4,19 +4,17 @@
  */
 package io.jenkins.plugins.elasticstacklogs;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import hudson.model.BuildListener;
-import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
-import jenkins.util.JenkinsJVM;
-
-import javax.annotation.CheckForNull;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
+import hudson.model.BuildListener;
+import jenkins.util.JenkinsJVM;
 
 /**
  * Initialized a {@link OutputStream} to send the events that happen during a build.
@@ -35,7 +33,6 @@ public class Sender implements BuildListener, Closeable {
   @NonNull
   private final BuildInfo buildInfo;
 
-
   private transient @CheckForNull
   PrintStream logger;
 
@@ -50,7 +47,7 @@ public class Sender implements BuildListener, Closeable {
     if (logger == null) {
       try {
         logger = new PrintStream(new OutputStream(buildInfo, nodeId), false, "UTF-8");
-      } catch (UnsupportedEncodingException | URISyntaxException x) {
+      } catch (URISyntaxException | IOException x) {
         throw new AssertionError(x);
       }
     }
@@ -60,7 +57,7 @@ public class Sender implements BuildListener, Closeable {
   @Override
   public void close() throws IOException {
     if (logger != null) {
-      LOGGER.log(Level.FINE, "closing {0}#{2}", new Object[]{buildInfo.toString(), nodeId});
+      LOGGER.log(Level.FINE, "closing {0}#{2}", new Object[] { buildInfo.toString(), nodeId });
       logger = null;
     }
     if (nodeId != null && JenkinsJVM.isJenkinsJVM()) {
@@ -68,6 +65,5 @@ public class Sender implements BuildListener, Closeable {
       PipelineBridge.get().close(buildInfo.getKey());
     }
   }
-
 
 }

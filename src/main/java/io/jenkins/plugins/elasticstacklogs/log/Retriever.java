@@ -4,6 +4,11 @@
  */
 package io.jenkins.plugins.elasticstacklogs.log;
 
+import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.TimeZone;
+import javax.annotation.Nonnull;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
@@ -11,24 +16,21 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.elasticsearch.action.search.*;
+import org.elasticsearch.action.search.ClearScrollRequest;
+import org.elasticsearch.action.search.ClearScrollResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.search.Scroll;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-
-import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.TimeZone;
-
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 
@@ -62,8 +64,8 @@ public class Retriever {
     this.url = url;
     this.index = index;
     this.credentialsProvider = new BasicCredentialsProvider();
-    org.apache.http.auth.UsernamePasswordCredentials credentials =
-      new org.apache.http.auth.UsernamePasswordCredentials(username, password);
+    org.apache.http.auth.UsernamePasswordCredentials credentials = new org.apache.http.auth.UsernamePasswordCredentials(
+      username, password);
     this.credentialsProvider.setCredentials(AuthScope.ANY, credentials);
   }
 
@@ -82,10 +84,8 @@ public class Retriever {
     RestClientBuilder builder = RestClient.builder(HttpHost.create(url));
     builder.setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
       @Override
-      public HttpAsyncClientBuilder customizeHttpClient(
-        HttpAsyncClientBuilder httpClientBuilder) {
-        return httpClientBuilder
-          .setDefaultCredentialsProvider(credentialsProvider);
+      public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+        return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
       }
     });
     return builder;
@@ -121,11 +121,7 @@ public class Retriever {
       if (StringUtils.isBlank(nodeID)) {
         searchSourceBuilder.query(matchQuery(JOB_ID, buildID));
       } else {
-        searchSourceBuilder.query(
-          boolQuery()
-            .must(matchQuery(JOB_ID, buildID))
-            .must(matchQuery(JOB_NODE, nodeID))
-        );
+        searchSourceBuilder.query(boolQuery().must(matchQuery(JOB_ID, buildID)).must(matchQuery(JOB_NODE, nodeID)));
       }
       searchRequest.source(searchSourceBuilder);
 
@@ -183,7 +179,7 @@ public class Retriever {
    */
   public boolean indexExists() throws IOException {
     boolean ret = false;
-    if(StringUtils.isNotBlank(index)){
+    if (StringUtils.isNotBlank(index)) {
       try (RestHighLevelClient client = new RestHighLevelClient(getBuilder())) {
         GetIndexRequest request = new GetIndexRequest(index);
         ret = client.indices().exists(request, RequestOptions.DEFAULT);

@@ -4,21 +4,22 @@
  */
 package io.jenkins.plugins.elasticstacklogs.input;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * Implementation for the UDP input of filebeat.
  */
-public class UDPInput implements Input {
+public class UDPInput extends Input {
   private final int port;
   @NonNull
   private final String host;
 
+  @DataBoundConstructor
   public UDPInput(@NonNull String host, int port) {
     this.port = port;
     this.host = host;

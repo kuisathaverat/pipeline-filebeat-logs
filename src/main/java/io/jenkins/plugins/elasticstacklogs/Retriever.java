@@ -4,27 +4,26 @@
  */
 package io.jenkins.plugins.elasticstacklogs;
 
-import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import hudson.console.AnnotatedLargeText;
-import io.jenkins.plugins.elasticstacklogs.config.ElasticStackConfiguration;
-import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
-import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.SearchHit;
-import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
-import org.jenkinsci.plugins.workflow.graph.FlowNode;
-import org.kohsuke.stapler.framework.io.ByteBuffer;
-
-import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
+import javax.annotation.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.util.FormValidation;
+import io.jenkins.plugins.elasticstacklogs.config.ElasticStackConfiguration;
+import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
+import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
+import net.sf.json.JSONObject;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
+import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
+import org.jenkinsci.plugins.workflow.graph.FlowNode;
+import org.kohsuke.stapler.framework.io.ByteBuffer;
+import hudson.console.AnnotatedLargeText;
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 
 /**
  * Retrieve the logs from Elasticsearch.
@@ -40,7 +39,8 @@ public class Retriever {
     this.buildInfo = buildInfo;
   }
 
-  AnnotatedLargeText<FlowExecutionOwner.Executable> overallLog(FlowExecutionOwner.Executable build, boolean completed) throws IOException, InterruptedException {
+  AnnotatedLargeText<FlowExecutionOwner.Executable> overallLog(FlowExecutionOwner.Executable build, boolean completed)
+    throws IOException, InterruptedException {
     ByteBuffer buf = new ByteBuffer();
     stream(buf, null);
     return new AnnotatedLargeText<>(buf, StandardCharsets.UTF_8, completed, build);
@@ -59,21 +59,25 @@ public class Retriever {
    * @param nodeId if defined, limit output to that coming from this node
    */
   private void stream(@NonNull OutputStream os, @CheckForNull String nodeId) throws IOException {
-    UsernamePasswordCredentials creds = ElasticStackConfiguration.get().getCredentials();
+    ElasticStackConfiguration elasticStackConfiguration = ElasticStackConfiguration.get();
+    UsernamePasswordCredentials creds = elasticStackConfiguration.getCredentials();
+    String elasticsearchUrl = elasticStackConfiguration.getElasticsearchUrl();
+    InputConfiguration inputConfiguration = InputConfiguration.get();
+    String indexPattern = inputConfiguration.getIndexPattern();
+    String username = creds.getUsername();
+    String password = creds.getPassword().getPlainText();
     io.jenkins.plugins.elasticstacklogs.log.Retriever retriever = new io.jenkins.plugins.elasticstacklogs.log.Retriever(
-      ElasticStackConfiguration.get().getElasticsearchUrl(),
-      creds.getUsername(),
-      creds.getPassword().getPlainText(),
-      InputConfiguration.get().getIndexPattern()
+      elasticsearchUrl, username, password,
+      indexPattern
     );
-    try (Writer w = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
-      String kibanaUrl = ElasticStackConfiguration.get().getKibanaUrl();
-      if (StringUtils.isNotBlank(kibanaUrl)) {
-        // TODO build a proper Kibana URL with a filter.
-        w.write("[view in <a href=\"" + buildLogsURL(nodeId) + "\">Kibana Logs</a>]\n");
-        w.write("[view in <a href=\"" + buildDiscoverURL(nodeId) + "\">Kibana Discover</a>]\n");
+    if(!retriever.indexExists()){
+      try (Writer w = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
+        w.write("The index pattern configured does not exists\n");
+        w.flush();
       }
-
+      return;
+    }
+    try (Writer w = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
       SearchResponse searchResponse = retriever.search(buildInfo.getKey(), nodeId);
       String scrollId = searchResponse.getScrollId();
       SearchHit[] searchHits = searchResponse.getHits().getHits();
@@ -91,45 +95,6 @@ public class Retriever {
       }
       w.flush();
     }
-  }
-
-  private String buildLogsURL(@CheckForNull String nodeId) throws IOException {
-    String kibanaUrl = ElasticStackConfiguration.get().getKibanaUrl();
-    return kibanaUrl + "/app/logs/stream?" +
-      "flyoutOptions=(" +
-      "flyoutId:!n," +
-      "flyoutVisibility:hidden," +
-      "surroundingLogsId:!n)" +
-      "&logPosition=(" +
-      "end:now," +
-      "start:%27" + buildInfo.getStartTime() + "%27," +
-      "streamLive:!f)" +
-      "&logFilter=(" +
-      "expression:" + buildKuery(nodeId) +
-      ",kind:kuery)&f=1";
-  }
-
-  private String buildDiscoverURL(@CheckForNull String nodeId) throws IOException {
-    String kibanaUrl = ElasticStackConfiguration.get().getKibanaUrl();
-    return kibanaUrl + "/app/discover#/?" +
-           "_g=(" +
-           "time:(from:%27" + buildInfo.getStartTime() + "%27,to:now)" +
-           ")" +
-           "&_a=(" +
-           "index:%27" + InputConfiguration.get().getIndexPattern() + "%27," +
-           "query:(" +
-           "language:kuery," +
-           "query:" + buildKuery(nodeId) +
-           ")" +
-           ")&f=1";
-  }
-
-  private String buildKuery(@CheckForNull String nodeId) throws IOException {
-    String nodeQuery = "";
-    if (StringUtils.isNotBlank(nodeId)) {
-      nodeQuery = "%20AND%20job.node:%27" + nodeId + "%27";
-    }
-    return "%27job.id:" + buildInfo.getKey() + nodeQuery + "%27";
   }
 
   private void writeOutput(Writer w, SearchHit[] searchHits) throws IOException {

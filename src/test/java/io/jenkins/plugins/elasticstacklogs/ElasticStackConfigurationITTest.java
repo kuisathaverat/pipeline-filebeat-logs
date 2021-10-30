@@ -36,9 +36,12 @@ public class ElasticStackConfigurationITTest {
   @Before
   public void setUp() throws Exception {
     elasticStackConfiguration = ElasticStackConfiguration.get();
-    SystemCredentialsProvider.getInstance().getCredentials().add(new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, CRED_ID, "", ElasticsearchContainer.USER_NAME, ElasticsearchContainer.PASSWORD));
-    SystemCredentialsProvider.getInstance().getCredentials().add(new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL,
-                                                                                                     WRONG_CREDS, "", "foo", "bar"));
+    SystemCredentialsProvider.getInstance().getCredentials().add(
+      new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, CRED_ID, "", ElasticsearchContainer.USER_NAME,
+                                          ElasticsearchContainer.PASSWORD
+      ));
+    SystemCredentialsProvider.getInstance().getCredentials().add(
+      new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, WRONG_CREDS, "", "foo", "bar"));
     elasticStackConfiguration.setCredentialsId(CRED_ID);
     elasticStackConfiguration.setElasticsearchUrl(esContainer.getUrl());
     esContainer.createFilebeatIndex();
@@ -48,7 +51,9 @@ public class ElasticStackConfigurationITTest {
   public void testDoValidate() {
     assertEquals(elasticStackConfiguration.doValidate(CRED_ID, esContainer.getUrl()).kind, FormValidation.Kind.OK);
 
-    assertEquals(elasticStackConfiguration.doValidate(WRONG_CREDS, esContainer.getUrl()).kind, FormValidation.Kind.ERROR);
+    assertEquals(elasticStackConfiguration.doValidate(WRONG_CREDS, esContainer.getUrl()).kind,
+                 FormValidation.Kind.ERROR
+                );
     assertEquals(elasticStackConfiguration.doValidate(CRED_ID, "nowhere").kind, FormValidation.Kind.ERROR);
   }
 }

@@ -4,8 +4,14 @@
  */
 package io.jenkins.plugins.elasticstacklogs;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import io.jenkins.plugins.elasticstacklogs.input.FileInput;
-import io.jenkins.plugins.elasticstacklogs.input.InputFactory;
 import io.jenkins.plugins.elasticstacklogs.input.TCPInput;
 import io.jenkins.plugins.elasticstacklogs.input.UDPInput;
 import org.apache.commons.io.FileUtils;
@@ -16,28 +22,18 @@ import org.junit.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Duration;
-
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
-public class FileInputTest {
+public class FilebeatInputTest {
 
   private static final File workdir = new File("/tmp");
 
   @Rule
-  public GenericContainer filebeatContainer = new GenericContainer("docker.elastic.co/beats/filebeat:7.12.0")
+  public GenericContainer filebeatContainer = new GenericContainer("docker.elastic.co/beats/filebeat:7.15.0")
     .withExposedPorts(9000)
     .withClasspathResourceMapping("filebeat.yml", "/usr/share/filebeat/filebeat.yml", BindMode.READ_ONLY)
-    .withFileSystemBind(workdir.getAbsolutePath(), "/tmp", BindMode.READ_WRITE)
-    .withStartupTimeout(Duration.ofMinutes(1));
+    .withFileSystemBind(workdir.getAbsolutePath(), "/tmp", BindMode.READ_WRITE).withCommand("--strict.perms=false");
 
   @BeforeClass
   public static void requiresDocker() {
@@ -49,7 +45,7 @@ public class FileInputTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
   }
 
   @Test
@@ -85,12 +81,5 @@ public class FileInputTest {
     int length = packet.getLength();
     int offset = packet.getOffset();
     assertEquals(new String(msgBuffer, offset, length), "foo\n");
-  }
-
-  @Test
-  public void testFactory() throws URISyntaxException {
-    assertTrue(InputFactory.createInput(new URI("file://path/file")) instanceof FileInput);
-    assertTrue(InputFactory.createInput(new URI("tcp://host:port")) instanceof TCPInput);
-    assertTrue(InputFactory.createInput(new URI("udp://host:port")) instanceof UDPInput);
   }
 }

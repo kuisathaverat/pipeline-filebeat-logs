@@ -5,6 +5,10 @@
 
 package io.jenkins.plugins.elasticstacklogs.opentelemetry;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.logging.Logger;
+import javax.annotation.Nullable;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
@@ -15,10 +19,6 @@ import io.opentelemetry.proto.logs.v1.ResourceLogs;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.logging.data.LogRecord;
 import io.opentelemetry.sdk.logging.export.LogExporter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 public class TestLogExporter implements LogExporter {
   private static final Logger LOGGER = Logger.getLogger(TestLogExporter.class.getName());
@@ -26,7 +26,8 @@ public class TestLogExporter implements LogExporter {
   private final ManagedChannel channel;
   private final LogsServiceGrpc.LogsServiceBlockingStub blockingStub;
   private final LogsServiceGrpc.LogsServiceStub asyncStub;
-  @Nullable private Runnable onCall = null;
+  @Nullable
+  private Runnable onCall = null;
   private int callCount = 0;
 
   public TestLogExporter(ManagedChannelBuilder<?> channelBuilder) {
@@ -43,18 +44,20 @@ public class TestLogExporter implements LogExporter {
     if (onCall != null) {
       onCall.run();
     }
-    try{
+    try {
       LogRecordConverter converter = new LogRecordConverter();
-      InstrumentationLibraryLogs.Builder instrumentationLibraryLogs = InstrumentationLibraryLogs.newBuilder().addAllLogs(
-        converter.createFromEntities(this.records));
-      ResourceLogs resourceLogs =
-        ResourceLogs.newBuilder().addInstrumentationLibraryLogs(instrumentationLibraryLogs).build();
+      InstrumentationLibraryLogs.Builder instrumentationLibraryLogs = InstrumentationLibraryLogs.newBuilder()
+                                                                                                .addAllLogs(
+                                                                                                  converter.createFromEntities(
+                                                                                                    this.records));
+      ResourceLogs resourceLogs = ResourceLogs.newBuilder().addInstrumentationLibraryLogs(instrumentationLibraryLogs)
+                                              .build();
       ExportLogsServiceRequest request = ExportLogsServiceRequest.newBuilder().addResourceLogs(resourceLogs).build();
       ExportLogsServiceResponse response = blockingStub.export(request);
       //asyncStub.export(request, responseObserver);
       LOGGER.fine(response.toString());
       ret = CompletableResultCode.ofSuccess();
-    } catch (Exception e){
+    } catch (Exception e) {
       ret = CompletableResultCode.ofFailure();
       LOGGER.fine(e.getMessage());
     }

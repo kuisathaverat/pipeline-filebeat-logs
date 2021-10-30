@@ -4,26 +4,25 @@
  */
 package io.jenkins.plugins.elasticstacklogs;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import hudson.ExtensionList;
-import hudson.console.AnnotatedLargeText;
-import hudson.model.BuildListener;
-import hudson.model.Run;
-import hudson.model.TaskListener;
-import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
-import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
-import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
-import org.jenkinsci.plugins.workflow.graph.FlowNode;
-import org.jenkinsci.plugins.workflow.log.BrokenLogStorage;
-import org.jenkinsci.plugins.workflow.log.LogStorage;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
+import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
+import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
+import org.jenkinsci.plugins.workflow.graph.FlowNode;
+import org.jenkinsci.plugins.workflow.log.BrokenLogStorage;
+import org.jenkinsci.plugins.workflow.log.LogStorage;
+import hudson.ExtensionList;
+import hudson.console.AnnotatedLargeText;
+import hudson.model.BuildListener;
+import hudson.model.Run;
+import hudson.model.TaskListener;
 
 /**
  * Replaces the logs storage implementation with a custom one
@@ -52,7 +51,8 @@ public class LogStorageImpl implements LogStorage {
 
   @NonNull
   @Override
-  public AnnotatedLargeText<FlowExecutionOwner.Executable> overallLog(@NonNull FlowExecutionOwner.Executable build, boolean complete) {
+  public AnnotatedLargeText<FlowExecutionOwner.Executable> overallLog(
+    @NonNull FlowExecutionOwner.Executable build, boolean complete) {
     try {
       return new Retriever(buildInfo).overallLog(build, complete);
     } catch (Exception x) {

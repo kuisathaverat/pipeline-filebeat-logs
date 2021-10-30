@@ -13,8 +13,9 @@ import io.opentelemetry.sdk.logging.data.LogRecord;
 public class LogRecordImpl extends LogRecord {
 
   private io.opentelemetry.proto.logs.v1.LogRecord record;
-  public LogRecordImpl(io.opentelemetry.proto.logs.v1.LogRecord record){
-  this.record = record;
+
+  public LogRecordImpl(io.opentelemetry.proto.logs.v1.LogRecord record) {
+    this.record = record;
   }
 
   @Override
@@ -62,7 +63,8 @@ public class LogRecordImpl extends LogRecord {
   @Override
   public Attributes getAttributes() {
     AttributesBuilderImpl builder = new AttributesBuilderImpl();
-    record.getAttributesList().stream().forEach(i -> builder.put(AttributeKey.stringKey(i.getKey()), i.getValue().getStringValue()));
+    record.getAttributesList().stream()
+          .forEach(i -> builder.put(AttributeKey.stringKey(i.getKey()), i.getValue().getStringValue()));
     return builder.build();
   }
 }

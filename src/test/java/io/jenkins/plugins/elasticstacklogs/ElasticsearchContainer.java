@@ -4,6 +4,8 @@
  */
 package io.jenkins.plugins.elasticstacklogs;
 
+import java.io.IOException;
+import java.time.Duration;
 import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
 import io.jenkins.plugins.elasticstacklogs.log.Retriever;
 import org.apache.http.HttpHost;
@@ -19,12 +21,9 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.core.TimeValue;
 import org.testcontainers.containers.GenericContainer;
-
-import java.io.IOException;
-import java.time.Duration;
 
 /**
  * Elasticsearch container used on the tests.
@@ -39,7 +38,7 @@ public class ElasticsearchContainer extends GenericContainer {
   public static final String JOB_NAME_VALUE = "test";
 
   public ElasticsearchContainer() {
-    super("docker.elastic.co/elasticsearch/elasticsearch:7.12.0");
+    super("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
     withExposedPorts(ES_PORT);
     withEnv("ES_JAVA_OPTS", "-Xms512m -Xmx512m");
     withEnv("discovery.type", "single-node");
@@ -54,17 +53,15 @@ public class ElasticsearchContainer extends GenericContainer {
    */
   public RestClientBuilder getBuilder() {
     final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-    org.apache.http.auth.UsernamePasswordCredentials credentials =
-      new org.apache.http.auth.UsernamePasswordCredentials(USER_NAME, PASSWORD);
+    org.apache.http.auth.UsernamePasswordCredentials credentials = new org.apache.http.auth.UsernamePasswordCredentials(
+      USER_NAME, PASSWORD);
     credentialsProvider.setCredentials(AuthScope.ANY, credentials);
 
     RestClientBuilder builder = RestClient.builder(HttpHost.create(getUrl()));
     builder.setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
       @Override
-      public HttpAsyncClientBuilder customizeHttpClient(
-        HttpAsyncClientBuilder httpClientBuilder) {
-        return httpClientBuilder
-          .setDefaultCredentialsProvider(credentialsProvider);
+      public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+        return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
       }
     });
     return builder;
@@ -101,15 +98,11 @@ public class ElasticsearchContainer extends GenericContainer {
   }
 
   private IndexRequest newBulk(int lineNumber, String buildID) throws IOException {
-    return new IndexRequest(INDEX)
-      .source(XContentType.JSON,
-        Retriever.JOB_BUILD, buildID,
-        Retriever.TIMESTAMP, Retriever.now(),
-        Retriever.JOB_NAME, JOB_NAME_VALUE,
-        Retriever.JOB_URL, JOB_URL_VALUE,
-        Retriever.JOB_ID, BuildInfo.getKey(JOB_URL_VALUE, buildID),
-        Retriever.JOB_NODE, lineNumber % 2 == 0 ? "1" : null,
-        Retriever.MESSAGE, "Line " + lineNumber
-      );
+    return new IndexRequest(INDEX).source(XContentType.JSON, Retriever.JOB_BUILD, buildID, Retriever.TIMESTAMP,
+                                          Retriever.now(), Retriever.JOB_NAME, JOB_NAME_VALUE, Retriever.JOB_URL,
+                                          JOB_URL_VALUE, Retriever.JOB_ID, BuildInfo.getKey(JOB_URL_VALUE, buildID),
+                                          Retriever.JOB_NODE, lineNumber % 2 == 0 ? "1" : null, Retriever.MESSAGE,
+                                          "Line " + lineNumber
+                                         );
   }
 }
