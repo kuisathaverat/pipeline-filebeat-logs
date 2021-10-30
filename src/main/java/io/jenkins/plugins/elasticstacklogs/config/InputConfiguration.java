@@ -36,7 +36,7 @@ public class InputConfiguration extends AbstractElasticStackGlobalConfiguration 
   @CheckForNull
   private InputConf input;
   @CheckForNull
-  private String indexPattern = "filebeat-*";
+  private String indexPattern = "logs-*";
 
   @DataBoundConstructor
   public InputConfiguration() {
