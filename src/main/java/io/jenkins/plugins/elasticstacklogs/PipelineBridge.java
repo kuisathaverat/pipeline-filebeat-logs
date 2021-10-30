@@ -53,7 +53,9 @@ public class PipelineBridge implements LogStorageFactory {
       if (exec instanceof Run) {
         Run<?, ?> build = (Run<?, ?>) exec;
         BuildInfo buildInfo = new BuildInfo(build);
-        build.addAction(new ElasticsearchLogsLinkAction(buildInfo));
+        if(build.getAction(ElasticsearchLogsLinkAction.class) == null){
+          build.addAction(new ElasticsearchLogsLinkAction(buildInfo));
+        }
         return getLogStorageForId(buildInfo);
       } else {
         return null;

@@ -3,8 +3,10 @@
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <table style="margin-top: 1em; margin-left:1em;">
     <t:summary icon="/plugin/elastic-stack-logs/images/elastic_stack.png">
-      Elasticsearch <a href="${it.linkLogs}" target="_blank">Logs</a>
-      Elasticsearch <a href="${it.linkDiscover}" target="_blank">Discover</a>
+        Elasticsearch <a href="${it.linkLogs()}" target="_blank">Logs</a>
+    </t:summary>
+    <t:summary icon="/plugin/elastic-stack-logs/images/elastic_stack.png">
+        Elasticsearch <a href="${it.linkDiscover()}" target="_blank">Discover</a>
     </t:summary>
   </table>
 </j:jelly>
