@@ -13,7 +13,7 @@ The plugin add a new section in the System Configuration named Elastic Stack, th
 
 ![](docs/images/system_configuration.png)
 
-## Elastic Stack settings
+## Elastic Stack settings
 
 The plugin need some Elastic Stack setting to retrieve the logs from Elasticsearch and create links to the logs views in Kibana.
 it is need to know the URL of Elasticsearch and the credentials to access, and the URL of Kibana.
@@ -55,7 +55,7 @@ The OpenTelemetry input require a OpenTelemetry service up and running to connec
 
 ![](docs/images/index_pattern_validation_success.png)
 
-# How to check build logs
+# How to check build logs
 
 ![](docs/images/build_menu.png)
 ![](docs/images/build_status.png)
@@ -94,7 +94,7 @@ Check that the credentials are correct.
 
 ![](docs/images/elastic_config_validation_fail_wrong_auth.png)
 
-## Index setting
+## Index setting
 
 The index settings has a validation button that will connect to Elastisearch
 and check that the index pattern configured exists and is accessible.
@@ -102,7 +102,7 @@ and check that the index pattern configured exists and is accessible.
 ![](docs/images/index_pattern_validation_fail.png)
 
 
-## Fileds validations
+## Fileds validations
 
 When required fields are empty you will show the following error under the field,
 you must set a valid value on those fields to make the plugin work correctly.
@@ -114,7 +114,7 @@ you will see the following error under the field.
 
 ![](docs/images/url_malformed.png)
 
-## Console logs
+## Console logs
 
 The console log of Jenkins will work as usual
 but instead of read the logs from disk will retrieve the logs from Elasticsearch.
