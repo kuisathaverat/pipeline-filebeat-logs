@@ -82,7 +82,7 @@ public class OpentelemetryLogsInput extends Input {
     if (endpoint.contains(HTTPS)) {
       ret = HTTPS;
     } else if (endpoint.contains(HTTP)) {
-      ret = HTTPS;
+      ret = HTTP;
     }
     return ret;
   }
