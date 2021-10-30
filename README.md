@@ -32,7 +32,7 @@ This Filebeat service should expose an input of one of the following types:
 
 The plugin will use this input to send the events.
 
-### File input
+### File input
 
 ![](docs/images/filebeat_file_input.png)
 
@@ -73,7 +73,8 @@ And two links in the build status.
 
 # Configuration errors
 
-## Elastic Stack
+## Elastic Stack
+
 The Elastic Stack configuration has a button to validate the configuration,
 This button will try to connect to Elasticsearch
 and checks if the index pattern exists.
