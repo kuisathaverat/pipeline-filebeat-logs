@@ -19,7 +19,7 @@
     <!-- change it to 11 causes errors in the ManagementLink validation URLs -->
     <java.level>8</java.level>
     <useBeta>true</useBeta>
-    <elasticstack.version>7.15.0</elasticstack.version>
+    <elasticstack.version>7.15.1</elasticstack.version>
   </properties>
   <name>Elastic Stack logs Plugin</name>
   <licenses>
@@ -138,7 +138,7 @@
     <dependency>
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-sdk</artifactId>
-      <version>1.2.0</version>
+      <version>1.7.0</version>
     </dependency>
     <dependency>
       <groupId>io.opentelemetry</groupId>
@@ -148,7 +148,7 @@
     <dependency>
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-proto</artifactId>
-      <version>1.2.0-alpha</version>
+      <version>1.7.0-alpha</version>
     </dependency>
     <dependency>
       <groupId>io.grpc</groupId>
