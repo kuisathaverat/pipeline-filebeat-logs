@@ -4,23 +4,13 @@
  */
 package io.jenkins.plugins.elasticstacklogs.log;
 
-import java.io.IOException;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.TimeZone;
-import javax.annotation.Nonnull;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.elasticsearch.action.search.ClearScrollRequest;
-import org.elasticsearch.action.search.ClearScrollResponse;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchScrollRequest;
+import org.elasticsearch.action.search.*;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
@@ -31,6 +21,13 @@ import org.elasticsearch.search.Scroll;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.TimeZone;
+
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 
@@ -72,7 +69,7 @@ public class Retriever {
   /**
    * @return the current timestamp on a valid format to Elasticsearch.
    */
-  public static final String now() {
+  public static String now() {
     ZonedDateTime date = ZonedDateTime.now(TimeZone.getTimeZone("UTC").toZoneId());
     return DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(date);
   }
@@ -82,12 +79,7 @@ public class Retriever {
    */
   public RestClientBuilder getBuilder() {
     RestClientBuilder builder = RestClient.builder(HttpHost.create(url));
-    builder.setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
-      @Override
-      public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
-        return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
-      }
-    });
+    builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
     return builder;
   }
 
@@ -96,7 +88,6 @@ public class Retriever {
    *
    * @param buildID build ID to search for the logs.
    * @return A page with log lines the results of the search. The object contains the scrollID to use in {@link #next(String)} requests.
-   * @throws IOException
    */
   public SearchResponse search(@Nonnull String buildID) throws IOException {
     return search(buildID, null);
@@ -108,7 +99,6 @@ public class Retriever {
    * @param buildID build ID to search for the logs.
    * @param nodeID  A page with log lines the results of the search.
    * @return A page with log lines the results of the search. The object contains the scrollID to use in {@link #next(String)} requests.
-   * @throws IOException
    */
   public SearchResponse search(@Nonnull String buildID, @CheckForNull String nodeID) throws IOException {
     try (RestHighLevelClient client = new RestHighLevelClient(getBuilder())) {
@@ -133,8 +123,7 @@ public class Retriever {
    * Request the next page of a scroll search.
    *
    * @param scrollId Scroll ID to request the next page of log lines. see {@link #search(String)}
-   * @return A page with log lines the results of the search. The object contains the scrollID to use in {@link #next(String)} requests.
-   * @throws IOException
+   * @return A page with log lines the results of the search. The object contains the scrollID to use in #next(String) requests.
    */
   public SearchResponse next(@Nonnull String scrollId) throws IOException {
     return next(scrollId, DEFAULT_TIMEVALUE);
@@ -146,7 +135,6 @@ public class Retriever {
    * @param scrollId         Scroll ID to request the next page of log lines. see {@link #search(String)}
    * @param timeValueSeconds seconds that will control how long to keep the scrolling resources open.
    * @return A page with log lines the results of the search. The object contains the scrollID to use in {@link #next(String)} requests.
-   * @throws IOException
    */
   public SearchResponse next(@Nonnull String scrollId, @Nonnull TimeValue timeValueSeconds) throws IOException {
     SearchScrollRequest scrollRequest = new SearchScrollRequest(scrollId);
@@ -161,7 +149,6 @@ public class Retriever {
    *
    * @param scrollId Scroll ID to request the next page of log lines. see {@link #search(String)}
    * @return the object with the result.
-   * @throws IOException
    */
   public ClearScrollResponse clear(@Nonnull String scrollId) throws IOException {
     ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
@@ -175,7 +162,6 @@ public class Retriever {
    * check if an index exists.
    *
    * @return true if the index exists.
-   * @throws IOException
    */
   public boolean indexExists() throws IOException {
     boolean ret = false;

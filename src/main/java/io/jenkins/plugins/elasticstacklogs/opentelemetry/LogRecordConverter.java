@@ -6,6 +6,7 @@ package io.jenkins.plugins.elasticstacklogs.opentelemetry;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import com.google.protobuf.ByteString;
@@ -16,19 +17,16 @@ public class LogRecordConverter {
 
   private final Function<io.opentelemetry.proto.logs.v1.LogRecord, LogRecord> fromDto = t -> new LogRecordImpl(t);
 
-  private final Function<LogRecord, io.opentelemetry.proto.logs.v1.LogRecord> fromEntity = new Function<LogRecord, io.opentelemetry.proto.logs.v1.LogRecord>() {
-    @Override
-    public io.opentelemetry.proto.logs.v1.LogRecord apply(LogRecord u) {
-      io.opentelemetry.proto.logs.v1.LogRecord.Builder builder = io.opentelemetry.proto.logs.v1.LogRecord.newBuilder();
-      builder.setName(u.getName()).setBody(
-               io.opentelemetry.proto.common.v1.AnyValue.newBuilder().setStringValue(u.getBody().getStringValue()))
-             .setFlags(u.getFlags()).setSeverityNumberValue(u.getSeverity().getSeverityNumber())
-             .setSpanId(ByteString.copyFrom(u.getSpanId().getBytes())).setTimeUnixNano(u.getTimeUnixNano())
-             .setTraceId(ByteString.copyFrom(u.getTraceId().getBytes()));
-      u.getAttributes().forEach((k, v) -> builder.addAttributes(KeyValue.newBuilder().setKey(k.getKey()).setValue(
-        io.opentelemetry.proto.common.v1.AnyValue.newBuilder().setStringValue(String.valueOf(k))).build()));
-      return builder.build();
-    }
+  private final Function<LogRecord, io.opentelemetry.proto.logs.v1.LogRecord> fromEntity = u -> {
+    io.opentelemetry.proto.logs.v1.LogRecord.Builder builder = io.opentelemetry.proto.logs.v1.LogRecord.newBuilder();
+    builder.setName(Objects.requireNonNull(u.getName())).setBody(
+             io.opentelemetry.proto.common.v1.AnyValue.newBuilder().setStringValue(u.getBody().getStringValue()))
+           .setFlags(u.getFlags()).setSeverityNumberValue(u.getSeverity().getSeverityNumber())
+           .setSpanId(ByteString.copyFrom(u.getSpanId().getBytes())).setTimeUnixNano(u.getTimeUnixNano())
+           .setTraceId(ByteString.copyFrom(u.getTraceId().getBytes()));
+    u.getAttributes().forEach((k, v) -> builder.addAttributes(KeyValue.newBuilder().setKey(k.getKey()).setValue(
+      io.opentelemetry.proto.common.v1.AnyValue.newBuilder().setStringValue(String.valueOf(k))).build()));
+    return builder.build();
   };
 
   public LogRecordConverter() {

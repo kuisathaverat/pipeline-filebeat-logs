@@ -4,13 +4,12 @@
  */
 package io.jenkins.plugins.elasticstacklogs.config;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import javax.annotation.Nonnull;
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.Extension;
+import hudson.ExtensionList;
+import hudson.util.FormValidation;
 import io.jenkins.plugins.elasticstacklogs.log.Retriever;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -20,10 +19,10 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.interceptor.RequirePOST;
-import hudson.Extension;
-import hudson.ExtensionList;
-import hudson.util.FormValidation;
-import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.util.NoSuchElementException;
 
 /**
  * Stores the configuration of the Inputs.
@@ -31,7 +30,6 @@ import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 @Symbol("inputLogs")
 @Extension
 public class InputConfiguration extends AbstractElasticStackGlobalConfiguration {
-  private static final List<String> validSchemas = Arrays.asList("tcp", "udp", "file", "otel");
 
   @CheckForNull
   private InputConf input;

@@ -17,7 +17,6 @@ public abstract class Input {
    *
    * @param value value to write in the Filebeat input.
    * @return true it success.
-   * @throws IOException
    */
   public abstract boolean write(@NonNull String value) throws IOException;
 

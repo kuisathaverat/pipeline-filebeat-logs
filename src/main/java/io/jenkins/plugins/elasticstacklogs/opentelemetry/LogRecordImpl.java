@@ -7,12 +7,12 @@ package io.jenkins.plugins.elasticstacklogs.opentelemetry;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.sdk.logging.data.AnyValue;
+import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.sdk.logging.data.LogRecord;
 
 public class LogRecordImpl extends LogRecord {
 
-  private io.opentelemetry.proto.logs.v1.LogRecord record;
+  private final io.opentelemetry.proto.logs.v1.LogRecord record;
 
   public LogRecordImpl(io.opentelemetry.proto.logs.v1.LogRecord record) {
     this.record = record;
@@ -63,7 +63,7 @@ public class LogRecordImpl extends LogRecord {
   @Override
   public Attributes getAttributes() {
     AttributesBuilderImpl builder = new AttributesBuilderImpl();
-    record.getAttributesList().stream()
+    record.getAttributesList()
           .forEach(i -> builder.put(AttributeKey.stringKey(i.getKey()), i.getValue().getStringValue()));
     return builder.build();
   }

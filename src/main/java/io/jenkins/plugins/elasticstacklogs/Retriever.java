@@ -4,33 +4,31 @@
  */
 package io.jenkins.plugins.elasticstacklogs;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.util.logging.Logger;
-import javax.annotation.CheckForNull;
+import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import hudson.util.FormValidation;
+import hudson.console.AnnotatedLargeText;
 import io.jenkins.plugins.elasticstacklogs.config.ElasticStackConfiguration;
 import io.jenkins.plugins.elasticstacklogs.config.InputConfiguration;
 import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
 import net.sf.json.JSONObject;
+import org.apache.logging.log4j.util.Strings;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.kohsuke.stapler.framework.io.ByteBuffer;
-import hudson.console.AnnotatedLargeText;
-import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
+
+import javax.annotation.CheckForNull;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Retrieve the logs from Elasticsearch.
  */
 public class Retriever {
-
-  private static final Logger LOGGER = Logger.getLogger(Retriever.class.getName());
 
   @NonNull
   private final BuildInfo buildInfo;
@@ -40,7 +38,7 @@ public class Retriever {
   }
 
   AnnotatedLargeText<FlowExecutionOwner.Executable> overallLog(FlowExecutionOwner.Executable build, boolean completed)
-    throws IOException, InterruptedException {
+    throws IOException {
     ByteBuffer buf = new ByteBuffer();
     stream(buf, null);
     return new AnnotatedLargeText<>(buf, StandardCharsets.UTF_8, completed, build);
@@ -66,6 +64,9 @@ public class Retriever {
     String indexPattern = inputConfiguration.getIndexPattern();
     String username = creds.getUsername();
     String password = creds.getPassword().getPlainText();
+    if(Strings.isBlank(elasticsearchUrl) || Strings.isBlank(indexPattern)){
+      throw new IOException("some configuration parameters are incorrect, check the plugin configuration");
+    }
     io.jenkins.plugins.elasticstacklogs.log.Retriever retriever = new io.jenkins.plugins.elasticstacklogs.log.Retriever(
       elasticsearchUrl, username, password,
       indexPattern
@@ -83,7 +84,7 @@ public class Retriever {
       SearchHit[] searchHits = searchResponse.getHits().getHits();
       writeOutput(w, searchHits);
 
-      while (searchHits != null && searchHits.length > 0) {
+      while (searchHits.length > 0) {
         searchResponse = retriever.next(scrollId);
         scrollId = searchResponse.getScrollId();
         searchHits = searchResponse.getHits().getHits();

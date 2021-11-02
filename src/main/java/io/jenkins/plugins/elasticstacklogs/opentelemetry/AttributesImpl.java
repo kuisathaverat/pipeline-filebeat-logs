@@ -7,6 +7,8 @@ package io.jenkins.plugins.elasticstacklogs.opentelemetry;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.common.AttributesBuilder;
@@ -18,12 +20,12 @@ public class AttributesImpl implements Attributes {
   }
 
   @Override
-  public <T> T get(AttributeKey<T> key) {
+  public <T> T get(@NonNull AttributeKey<T> key) {
     return (T) map.get(key);
   }
 
   @Override
-  public void forEach(BiConsumer<? super AttributeKey<?>, ? super Object> biConsumer) {
+  public void forEach(@NonNull BiConsumer<? super AttributeKey<?>, ? super Object> biConsumer) {
     map.forEach(biConsumer);
   }
 

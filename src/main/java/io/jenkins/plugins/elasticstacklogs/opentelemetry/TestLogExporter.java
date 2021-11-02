@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
@@ -37,8 +39,8 @@ public class TestLogExporter implements LogExporter {
   }
 
   @Override
-  public synchronized CompletableResultCode export(Collection<LogRecord> records) {
-    CompletableResultCode ret = CompletableResultCode.ofFailure();
+  public synchronized CompletableResultCode export(@NonNull Collection<LogRecord> records) {
+    CompletableResultCode ret;
     this.records.addAll(records);
     callCount++;
     if (onCall != null) {

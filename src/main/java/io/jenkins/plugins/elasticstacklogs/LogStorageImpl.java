@@ -70,13 +70,14 @@ public class LogStorageImpl implements LogStorage {
     }
   }
 
+  @NonNull
   @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "forBuild only accepts Run")
   @Deprecated
   @Override
-  public File getLogFile(FlowExecutionOwner.Executable build, boolean complete) {
+  public File getLogFile(@NonNull FlowExecutionOwner.Executable build, boolean complete) {
     AnnotatedLargeText<FlowExecutionOwner.Executable> logText = overallLog(build, complete);
     // Not creating a temp file since it would be too expensive to have multiples:
-    File f = new File(((Run) build).getRootDir(), "log");
+    File f = new File(((Run<?, ?>) build).getRootDir(), "log");
     f.deleteOnExit();
     try (OutputStream os = new FileOutputStream(f)) {
       // Similar to Run#writeWholeLogTo but terminates even if !complete:
@@ -94,7 +95,7 @@ public class LogStorageImpl implements LogStorage {
     return f;
   }
 
-  private InputConfiguration getConfiguration() {
+  public InputConfiguration getConfiguration() {
     return ExtensionList.lookupSingleton(InputConfiguration.class);
   }
 }

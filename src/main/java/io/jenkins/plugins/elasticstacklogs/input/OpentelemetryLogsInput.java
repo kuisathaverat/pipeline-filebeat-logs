@@ -12,6 +12,9 @@ import io.jenkins.plugins.elasticstacklogs.opentelemetry.TestLogExporter;
 import io.opentelemetry.sdk.logging.data.LogRecord;
 import io.opentelemetry.sdk.logging.export.BatchLogProcessor;
 import org.kohsuke.stapler.DataBoundConstructor;
+import io.opentelemetry.sdk.logs.LogEmitter;
+import io.opentelemetry.sdk.logs.LogProcessor;
+import io.opentelemetry.sdk.logs.SdkLogEmitterProvider;
 
 /**
  * This input send the log records to an OpenTelemetry service with support for logs.
@@ -28,11 +31,12 @@ public class OpentelemetryLogsInput extends Input {
   public static final int HTTPS_PORT = 443;
   public static final int GRPC_PORT = 4317;
   private static final Logger LOGGER = Logger.getLogger(OpentelemetryLogsInput.class.getName());
+  public static final String EMITTER_NAME = "Jenkins";
+  public static final String INSTRUMENTATION_VERSION = "0.1a";
   @NonNull
   private String endpoint;
 
-  private BatchLogProcessor processor;
-  private TestLogExporter exporter;
+  private final LogEmitter logEmitter;
 
   @DataBoundConstructor
   public OpentelemetryLogsInput(@NonNull String endpoint) {
@@ -41,6 +45,8 @@ public class OpentelemetryLogsInput extends Input {
     int port = getEndpointPort(endpoint);
     String host = getEndpointHost(endpoint);
     //TODO allow authenticate connections
+    TestLogExporter exporter;
+    BatchLogProcessor processor;
     if (protocol.equals(HTTPS)) {
       exporter = new TestLogExporter(ManagedChannelBuilder.forAddress(host, port).useTransportSecurity());
     } else {
@@ -49,6 +55,8 @@ public class OpentelemetryLogsInput extends Input {
     exporter.setOnCall(() -> LOGGER.info("Batch Log processed"));
     processor = BatchLogProcessor.builder(exporter).setMaxExportBatchSize(BATCH_SIZE).setMaxQueueSize(MAX_QUEUE_SIZE)
                                  .setScheduleDelayMillis(SCHEDULE_DELAY_MILLIS).build();
+    SdkLogEmitterProvider provider = SdkLogEmitterProvider.builder().addLogProcessor(processor).build();
+    logEmitter = provider.logEmitterBuilder(EMITTER_NAME).setInstrumentationVersion(INSTRUMENTATION_VERSION).build();
   }
 
   private static int getEndpointPort(@NonNull String endpoint) {
@@ -98,8 +106,7 @@ public class OpentelemetryLogsInput extends Input {
 
   @Override
   public boolean write(@NonNull String value) throws IOException {
-    LogRecord record = LogRecord.builder().setName(this.getClass().getName()).setBody(value).build();
-    processor.addLogRecord(record);
+    logEmitter.logBuilder().setBody(value).emit();
     return true;
   }
 

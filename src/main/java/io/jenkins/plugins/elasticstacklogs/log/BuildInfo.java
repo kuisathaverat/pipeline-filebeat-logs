@@ -6,6 +6,7 @@ package io.jenkins.plugins.elasticstacklogs.log;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -58,12 +59,16 @@ public class BuildInfo implements Serializable {
     this.jobName = build.getParent().getFullDisplayName();
     this.buildId = build.getId();
     this.startTime = timeStampToString(build.getStartTimeInMillis());
+    InputConf input = InputConfiguration.get().getInput();
+    if(input == null){
+      throw new NullPointerException("the plugin configuration is incorrect, you must set an input");
+    }
     this.input = InputConfiguration.get().getInput();
   }
 
-  public static final String getKey(String jobUrl, String buildId) throws IOException {
+  public static String getKey(String jobUrl, String buildId) throws IOException {
     String s = jobUrl + "#" + buildId;
-    return Base64.getEncoder().encodeToString(s.getBytes("UTF-8"));
+    return Base64.getEncoder().encodeToString(s.getBytes(StandardCharsets.UTF_8));
   }
 
   @Nonnull

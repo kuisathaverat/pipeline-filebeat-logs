@@ -17,6 +17,7 @@ import io.jenkins.plugins.elasticstacklogs.log.BuildInfo;
 import io.jenkins.plugins.elasticstacklogs.log.Retriever;
 import net.sf.json.JSONObject;
 import hudson.console.LineTransformationOutputStream;
+import org.apache.logging.log4j.util.Strings;
 
 /**
  * Process the output stream and send it to Filebeat.
@@ -25,10 +26,10 @@ public class OutputStream extends LineTransformationOutputStream {
   private static final Logger LOGGER = Logger.getLogger(OutputStream.class.getName());
   @NonNull
   private final BuildInfo buildInfo;
-  @NonNull
-  private final String nodeId;
   @CheckForNull
-  private Input input;
+  private final String nodeId;
+  @Nonnull
+  private final Input input;
 
   public OutputStream(@Nonnull BuildInfo buildInfo, @CheckForNull String nodeId)
     throws URISyntaxException, IOException {
@@ -46,7 +47,7 @@ public class OutputStream extends LineTransformationOutputStream {
     data.put(Retriever.JOB_NAME, buildInfo.getJobName());
     data.put(Retriever.JOB_URL, buildInfo.getJobUrl());
     data.put(Retriever.JOB_ID, buildInfo.getKey());
-    if (nodeId != null) {
+    if (Strings.isNotBlank(nodeId)) {
       data.put(Retriever.JOB_NODE, nodeId);
     }
     //TODO add Otel data trace_id=%X{trace_id} span_id=%X{span_id} trace_flags=%X{trace_flags}
