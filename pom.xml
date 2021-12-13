@@ -19,7 +19,7 @@
     <!-- change it to 11 causes errors in the ManagementLink validation URLs -->
     <java.level>8</java.level>
     <useBeta>true</useBeta>
-    <elasticstack.version>7.15.0</elasticstack.version>
+    <elasticstack.version>7.16.0</elasticstack.version>
   </properties>
   <name>Elastic Stack logs Plugin</name>
   <licenses>
