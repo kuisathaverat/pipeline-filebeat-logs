@@ -15,12 +15,13 @@
   <properties>
     <revision>0.3.0</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.289.3</jenkins.version>
+    <jenkins.version>2.303.3</jenkins.version>
     <!-- change it to 11 causes errors in the ManagementLink validation URLs -->
     <java.level>8</java.level>
     <useBeta>true</useBeta>
     <elasticstack.version>7.16.2</elasticstack.version>
-    <otel.version>1.2.0</otel.version>
+    <otel.version>1.10.0-SNAPSHOT</otel.version>
+    <otel_alpha.version>1.10.0-alpha-SNAPSHOT</otel_alpha.version>
   </properties>
   <name>Elastic Stack logs Plugin</name>
   <licenses>
@@ -65,7 +66,7 @@
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.289.x</artifactId>
+        <artifactId>bom-2.303.x</artifactId>
         <version>1083.vb6e5d3561904</version>
         <type>pom</type>
         <scope>import</scope>
@@ -151,14 +152,26 @@
     </dependency>
     <dependency>
       <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-sdk-extension-logging</artifactId>
-      <version>${otel.version}-alpha</version>
+      <artifactId>opentelemetry-sdk-logs</artifactId>
+      <version>${otel_alpha.version}</version>
     </dependency>
     <dependency>
       <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-proto</artifactId>
-      <version>${otel.version}-alpha</version>
+      <artifactId>opentelemetry-exporter-otlp-logs</artifactId>
+      <version>${otel_alpha.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib-common</artifactId>
+      <version>1.4.10</version>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-exporter-otlp-http-logs</artifactId>
+      <version>1.10.0-alpha-SNAPSHOT</version>
+    </dependency>
+    -->
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-netty-shaded</artifactId>
