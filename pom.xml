@@ -13,7 +13,7 @@
   <version>${revision}${changelist}</version>
   <packaging>hpi</packaging>
   <properties>
-    <revision>0.3.0</revision>
+    <revision>0.4.0</revision>
     <changelist>-SNAPSHOT</changelist>
     <jenkins.version>2.303.3</jenkins.version>
     <!-- change it to 11 causes errors in the ManagementLink validation URLs -->
