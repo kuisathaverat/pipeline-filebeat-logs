@@ -20,6 +20,7 @@
     <java.level>8</java.level>
     <useBeta>true</useBeta>
     <elasticstack.version>7.16.2</elasticstack.version>
+    <otel.version>1.2.0</otel.version>
   </properties>
   <name>Elastic Stack logs Plugin</name>
   <licenses>
@@ -49,6 +50,10 @@
       <id>repo.jenkins-ci.org</id>
       <url>https://repo.jenkins-ci.org/public/</url>
     </repository>
+    <repository>
+      <id>oss.sonatype.org-snapshot</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
@@ -68,7 +73,7 @@
       <dependency>
         <groupId>io.opentelemetry</groupId>
         <artifactId>opentelemetry-bom</artifactId>
-        <version>1.2.0</version>
+        <version>${otel.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -113,6 +118,10 @@
         <groupId>io.jenkins.plugins</groupId>
         <artifactId>snakeyaml-api</artifactId>
       </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -133,27 +142,34 @@
     <dependency>
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-api</artifactId>
-      <version>1.2.0</version>
+      <version>${otel.version}</version>
     </dependency>
     <dependency>
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-sdk</artifactId>
-      <version>1.7.0</version>
+      <version>${otel.version}</version>
     </dependency>
     <dependency>
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-sdk-extension-logging</artifactId>
-      <version>1.2.0-alpha</version>
+      <version>${otel.version}-alpha</version>
     </dependency>
     <dependency>
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-proto</artifactId>
-      <version>1.7.0-alpha</version>
+      <version>${otel.version}-alpha</version>
     </dependency>
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-netty-shaded</artifactId>
       <scope>runtime</scope>
+      <exclusions>
+        <exclusion>
+          <!-- org.jenkins-ci.plugins.workflow:workflow-aggregator:2.6 uses 2.8.7-->
+          <groupId>com.google.code.gson</groupId>
+          <artifactId>gson</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.grpc</groupId>
