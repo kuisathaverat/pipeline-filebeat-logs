@@ -24,7 +24,7 @@ services:
         - CMD-SHELL
         - curl -s -k http://localhost:9200/_cluster/health | grep -vq '"status":"red"'
   otel-collector:
-    image: otel/opentelemetry-collector-dev:latest
+    image: otel/opentelemetry-collector-contrib-dev:latest
     command:
       - /otelcol
       - --config=/otel-collector.yml

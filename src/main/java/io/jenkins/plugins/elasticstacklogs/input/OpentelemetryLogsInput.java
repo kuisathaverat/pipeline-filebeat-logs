@@ -5,12 +5,15 @@
 package io.jenkins.plugins.elasticstacklogs.input;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.grpc.ManagedChannelBuilder;
-import io.jenkins.plugins.elasticstacklogs.opentelemetry.TestLogExporter;
-import io.opentelemetry.sdk.logging.data.LogRecord;
-import io.opentelemetry.sdk.logging.export.BatchLogProcessor;
+import io.opentelemetry.exporter.otlp.logs.OtlpGrpcLogExporter;
+import io.opentelemetry.sdk.logs.SdkLogEmitterProvider;
+import io.opentelemetry.sdk.logs.export.BatchLogProcessor;
+import io.opentelemetry.sdk.logs.export.InMemoryLogExporter;
+import io.opentelemetry.sdk.logs.export.LogExporter;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -22,7 +25,7 @@ public class OpentelemetryLogsInput extends Input {
   public static final int SCHEDULE_DELAY_MILLIS = 2000;
   public static final String HTTPS = "https://";
   public static final String HTTP = "http://";
-  public static final String GRPC = "grpc://";
+  public static final String TEST = "test://";
   public static final String PORT_SP = ":";
   public static final int HTTP_PORT = 80;
   public static final int HTTPS_PORT = 443;
@@ -32,7 +35,9 @@ public class OpentelemetryLogsInput extends Input {
   private String endpoint;
 
   private BatchLogProcessor processor;
-  private TestLogExporter exporter;
+  private LogExporter exporter;
+  private SdkLogEmitterProvider logEmitterProvider;
+  private final AtomicLong count = new AtomicLong(0);
 
   @DataBoundConstructor
   public OpentelemetryLogsInput(@NonNull String endpoint) {
@@ -41,18 +46,24 @@ public class OpentelemetryLogsInput extends Input {
     int port = getEndpointPort(endpoint);
     String host = getEndpointHost(endpoint);
     //TODO allow authenticate connections
-    if (protocol.equals(HTTPS)) {
-      exporter = new TestLogExporter(ManagedChannelBuilder.forAddress(host, port).useTransportSecurity());
+    if (protocol.equals(TEST)){
+      exporter = InMemoryLogExporter.create();
     } else {
-      exporter = new TestLogExporter(ManagedChannelBuilder.forAddress(host, port).usePlaintext());
+      exporter = OtlpGrpcLogExporter.builder()
+                                    .addHeader("key","value")
+                                    .setEndpoint(endpoint)
+                                    .build();
     }
-    exporter.setOnCall(() -> LOGGER.info("Batch Log processed"));
-    processor = BatchLogProcessor.builder(exporter).setMaxExportBatchSize(BATCH_SIZE).setMaxQueueSize(MAX_QUEUE_SIZE)
-                                 .setScheduleDelayMillis(SCHEDULE_DELAY_MILLIS).build();
+    processor = BatchLogProcessor.builder(exporter)
+                                 .setMaxExportBatchSize(BATCH_SIZE)
+                                 .setMaxQueueSize(MAX_QUEUE_SIZE)
+                                 .setScheduleDelay(SCHEDULE_DELAY_MILLIS, TimeUnit.MILLISECONDS)
+                                 .build();
+    logEmitterProvider = SdkLogEmitterProvider.builder().addLogProcessor(processor).build();
   }
 
   private static int getEndpointPort(@NonNull String endpoint) {
-    int port = GRPC_PORT;
+    int port = HTTP_PORT;
     String protocol = getProtocol(endpoint);
     String endpointNoProtocol = endpoint.replace(protocol, "");
     if (endpointNoProtocol.contains(PORT_SP)) {
@@ -61,8 +72,6 @@ public class OpentelemetryLogsInput extends Input {
       port = HTTP_PORT;
     } else if (protocol.equals(HTTPS)) {
       port = HTTPS_PORT;
-    } else if (protocol.equals(GRPC)) {
-      port = GRPC_PORT;
     }
     return port;
   }
@@ -78,11 +87,13 @@ public class OpentelemetryLogsInput extends Input {
   }
 
   private static String getProtocol(String endpoint) {
-    String ret = GRPC;
+    String ret = HTTP;
     if (endpoint.contains(HTTPS)) {
       ret = HTTPS;
     } else if (endpoint.contains(HTTP)) {
       ret = HTTP;
+    } else if (endpoint.contains(TEST)) {
+      ret = TEST;
     }
     return ret;
   }
@@ -98,12 +109,18 @@ public class OpentelemetryLogsInput extends Input {
 
   @Override
   public boolean write(@NonNull String value) throws IOException {
-    LogRecord record = LogRecord.builder().setName(this.getClass().getName()).setBody(value).build();
-    processor.addLogRecord(record);
+    logEmitterProvider
+      .logEmitterBuilder(getClass().getName())
+      .build()
+      .logBuilder()
+      .setName(getClass().getName())
+      .setBody(value)
+      .emit();
+    count.incrementAndGet();
     return true;
   }
 
   public long getCount() {
-    return exporter.getCallCount();
+    return count.get();
   }
 }
