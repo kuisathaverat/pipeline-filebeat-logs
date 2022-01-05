@@ -54,15 +54,9 @@ public class InputConfigurationITTest {
 
   @Test
   public void testDoValidate() throws IOException {
-    assertEquals(inputConfiguration.doValidate(CRED_ID, esContainer.getUrl(), INDEX_PATTERN).kind,
-                 FormValidation.Kind.OK
-                );
-
-    assertEquals(inputConfiguration.doValidate(CRED_ID, esContainer.getUrl(), "pattern").kind,
-                 FormValidation.Kind.ERROR
-                );
-    assertEquals(inputConfiguration.doValidate(CRED_ID, esContainer.getUrl(), "").kind, FormValidation.Kind.ERROR);
-
-    assertEquals(inputConfiguration.doValidate(CRED_ID, "", "pattern").kind, FormValidation.Kind.ERROR);
+    assertEquals(FormValidation.Kind.OK, inputConfiguration.doValidate(CRED_ID, esContainer.getUrl(), INDEX_PATTERN).kind);
+    assertEquals(FormValidation.Kind.ERROR, inputConfiguration.doValidate(CRED_ID, esContainer.getUrl(), "pattern").kind);
+    assertEquals(FormValidation.Kind.ERROR, inputConfiguration.doValidate(CRED_ID, esContainer.getUrl(), "").kind);
+    assertEquals(FormValidation.Kind.WARNING, inputConfiguration.doValidate(CRED_ID, "", "pattern").kind);
   }
 }

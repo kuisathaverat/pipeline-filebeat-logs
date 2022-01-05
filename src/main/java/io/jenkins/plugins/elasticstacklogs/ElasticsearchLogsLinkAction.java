@@ -15,8 +15,8 @@ import jenkins.model.RunAction2;
 
 public class ElasticsearchLogsLinkAction implements RunAction2 {
 
-  private BuildInfo buildInfo;
-  private transient Run run;
+  private final BuildInfo buildInfo;
+  private transient Run<?, ?> run;
 
   public ElasticsearchLogsLinkAction(BuildInfo buildInfo) {
     this.buildInfo = buildInfo;
@@ -69,15 +69,15 @@ public class ElasticsearchLogsLinkAction implements RunAction2 {
 
   @Override
   public void onAttached(Run<?, ?> r) {
-    this.run = run;
+    this.run = r;
   }
 
   @Override
   public void onLoad(Run<?, ?> r) {
-    this.run = run;
+    this.run = r;
   }
 
-  public Run getRun() {
+  public Run<?, ?> getRun() {
     return run;
   }
 }

@@ -5,8 +5,6 @@
 package io.jenkins.plugins.elasticstacklogs.config;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
@@ -31,8 +29,6 @@ import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
 @Symbol("inputLogs")
 @Extension
 public class InputConfiguration extends AbstractElasticStackGlobalConfiguration {
-  private static final List<String> validSchemas = Arrays.asList("tcp", "udp", "file", "otel");
-
   @CheckForNull
   private InputConf input;
   @CheckForNull

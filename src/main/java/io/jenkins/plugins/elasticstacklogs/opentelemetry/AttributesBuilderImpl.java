@@ -6,6 +6,8 @@ package io.jenkins.plugins.elasticstacklogs.opentelemetry;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.common.AttributesBuilder;
@@ -26,13 +28,13 @@ public class AttributesBuilderImpl implements AttributesBuilder {
   }
 
   @Override
-  public <T> AttributesBuilder put(AttributeKey<Long> key, int value) {
+  public <T> AttributesBuilder put(@NonNull AttributeKey<Long> key, int value) {
     data.put(key, value);
     return this;
   }
 
   @Override
-  public <T> AttributesBuilder put(AttributeKey<T> key, T value) {
+  public <T> AttributesBuilder put(@NonNull AttributeKey<T> key, @NonNull T value) {
     data.put(key, value);
     return this;
   }

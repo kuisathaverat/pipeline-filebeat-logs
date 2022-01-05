@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jenkins.plugins.elasticstacklogs.input.Input;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.QueryParameter;
@@ -18,6 +20,7 @@ import jenkins.model.Jenkins;
  */
 public abstract class InputConf implements Describable<InputConf>, Serializable {
 
+  @NonNull
   public abstract Input get() throws IOException;
 
   @Override
