@@ -2,7 +2,7 @@
 <j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout" xmlns:st="jelly:stapler" xmlns:t="/lib/hudson">
   <l:layout title="Elasticsearch logs">
     <l:side-panel>
-      <st:include page="sidepanel.jelly" it="${it.run}" optional="true" />
+      <st:include page="sidepanel.jelly" it="${it.run}" />
     </l:side-panel>
     <l:main-panel>
       <t:summary icon="/plugin/elastic-stack-logs/images/elastic_stack.png">
