@@ -1,3 +1,7 @@
+# This project is Archived
+
+This plugin was integrated in the [OpenTelemetry plugin](https://github.com/jenkinsci/opentelemetry-plugin)
+
 # elastic-stack-logs
 Elastic Stack logs Plugin
 
